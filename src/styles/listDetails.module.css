@@ -1,0 +1,135 @@
+.taskButton {
+   background-color:transparent;
+   color:grey;
+   border-color: transparent;
+   padding: 0px;
+   width: 90px;
+   font-size: 13px;
+   box-sizing: border-box;
+   border-radius: 500px;
+   box-shadow: 10px;
+   cursor: pointer;
+   text-align: left;
+}
+
+.taskContainer {
+   display: flex;
+   margin: 15% ;
+   align-items: center;
+   margin-top: 40px; 
+  
+ }
+ .taskContent {
+   text-align: left;
+   width: 100%;
+ }
+ 
+.taskButton:hover{
+   color: red;
+}
+.properties{
+   font-size: 10px;
+   display: flex;
+   column-gap: 10px;
+   padding: 10px;
+}
+.properties button {
+   min-width: 18px;
+   min-height: 18px;
+   height: 18px;
+   width: 18px;
+   border-radius: 50%;
+   padding: 0;
+   border: 1px solid #444;
+   background: #fff;
+   margin-top: 0;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+}
+.Taskprops{
+   font-size: 12px;
+}
+header{
+   box-sizing: border-box;
+   border-radius: 10px;
+}
+.task{
+   text-align: left;
+}
+.taskIcons{
+   column-gap: 5px;
+   display: flex;
+}
+.taskName {
+   display: flex;
+   padding: 5px 0;
+   align-items: center;
+   justify-content: space-between;
+}
+.taskIconButtons{
+   background-color: #fff;
+   border-radius: none;
+   border: none;
+   margin-top: 0;
+   cursor: pointer;
+   padding: 6px;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+}
+.taskIconWrapper {
+   position: relative;
+}
+.dropdown {
+   width: 150px;
+   border-radius: 10px;
+   border: 1px solid #bbb;
+   position: absolute;
+   top: 30;
+   right: 0;
+   background-color: #fff;
+   overflow: hidden;
+}
+.itemDropdown {
+   background: #fff;
+   transition: .4s linear;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 5px;
+   font-size: 14px;
+   color: #222
+}
+.itemDropdown:hover {
+   background: #eee;
+}
+.dropdownmore {
+   width: 150px;
+   border-radius: 10px;
+   border: 1px solid #bbb;
+   position: absolute;
+   top: 30;
+   right: 0;
+   background-color: #fff;
+   overflow: hidden;
+}
+.itemDropdownmore {
+   background: #fff;
+   transition: .4s linear;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   column-gap: 10px;
+   padding: 5px;
+   font-size: 14px;
+   color: #222
+}
+.itemDropdownmore:hover {
+   background: #eee;
+}
+.taskText{
+   cursor: pointer;
+}

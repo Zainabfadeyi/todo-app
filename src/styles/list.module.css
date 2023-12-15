@@ -1,0 +1,45 @@
+/* list.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+    text-decoration: none;
+}
+
+.listContainer{
+    display: flex;
+    margin: 20px 15% ;
+ 
+    /* align-items: center; */    
+}
+.listContent{
+    width: 100%;
+}
+
+.addList {
+    display: flex;
+    width: 100%;
+    justify-content: right;
+    
+}
+.listButton {
+    background-color: white;
+    color: black;
+    border-color: black;
+    width: 100px;
+    font-size: 15px;
+    box-sizing: border-box; 
+    cursor: pointer;
+    align-items: right;
+    
+}
+.listButton:hover{
+    background-color: lightgrey;
+}
+
+
+
+
+
+

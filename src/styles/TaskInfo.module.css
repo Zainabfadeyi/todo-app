@@ -1,0 +1,121 @@
+.modalWrapper {
+   position: absolute;
+   height: 100vh;
+   width: 100vw;
+   top: 0;
+   left: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+.modalCloser {
+   height: 100%;
+   width: 100%;
+   background-color: rgba(0, 0, 0, 0.4);
+   position: absolute;
+   left: 0;
+   top: 0;
+}
+
+.modal {
+   width: 95%;
+   height: max-content;
+   max-height: 95dvh;
+   overflow-y: scroll;
+   background-color: #fff;
+   /* padding: 20px; */
+   max-width: 800px;
+   border-radius: 8px;
+   scrollbar-width: none;
+   -ms-overflow-style: none;
+   z-index: 99;
+}
+.modal::-webkit-scrollbar {
+   display: none;
+}
+/* .form {
+
+}
+.inputContainer {
+
+} */
+.heading {
+   padding: 7px 15px;
+   border-bottom: 1px solid #ccc;
+}
+.heading h4 {
+   font-size: 14px;
+   color: #555;
+}
+.taskDetails{
+   border: none;
+}
+.taskDetailWrapper{
+   padding: 10px 15px;
+}
+.taskFormWrapper {
+   display: flex;
+   column-gap: 15px;
+}
+.taskRadioBtn {
+   height: 18px;
+   width: 18px;
+   border-radius: 50%;
+   border: 1px solid #ccc;
+   padding: 0;
+   margin-top: 18px;
+   outline: none;
+   background-color: #fff;
+   cursor: pointer;
+}
+.inputs {
+   padding: 8px;
+   border-radius: 10px;
+   border: 1px solid;
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+}
+.taskTitle {
+   outline: none;
+   border: none;
+   width: 100%;
+   font-size: 18px !important;
+   font-weight: 600 !important;
+   resize: none;
+   height: 40px;
+}
+.taskDesc {
+   outline: none;
+   border: none;
+   width: 100%;
+   font-size: 14px !important;
+   color: #444;
+   height: 80px;
+   resize: none;
+}
+
+.controlBtnWrapper{
+   display: flex;
+   justify-content: right !important;
+   column-gap: 20px;
+   padding: 15px 0;
+}
+.controlBtn {
+   outline: none;
+   border: none;
+   border: 8px;
+   padding: 6px 15px !important;
+   font-size: 14px;
+   font-weight: 600;
+   background-color: red;
+}
+.controlBtn {
+   outline: none;
+   border: none;
+   border: 8px;
+   padding: 6px 15px !important;
+   font-size: 14px;
+   font-weight: 600;
+   background-color: red;
+}

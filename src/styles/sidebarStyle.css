@@ -1,0 +1,112 @@
+*{
+    margin:0;
+    padding:0;
+    text-decoration: none;
+}
+
+.sidebar{
+    background: #FAF8F7;
+    color: #222;
+    height:100vh;
+    width: 300px;
+    transition: all 0.5s;
+}
+.top_section{
+    display: flex;
+    align-items:center;
+    padding:20px 15px;
+    justify-content: space-between;
+}
+.logo{
+    font-size: 20px;
+}
+.bars{
+    display: flex;
+    font-size: 20px;
+    margin-left: 50px;
+    cursor: pointer;
+    align-items: center; 
+}
+.link{
+    display: flex;
+    color: #fff;
+    padding: 5px 20px;
+    gap: 10px;
+    transition: all 0.5s;
+}
+.link:hover {
+    background-color: #eee;
+    color: #000;
+    transition: all 0.5s;
+}
+.icon {
+    display: flex;
+    align-items: center;
+}
+.icon, .link_text{
+    font-size: 16px;
+    color: #444;
+}
+.link_list-text {
+
+  font-size: 16px;
+  padding-top: 30px;
+  padding: 10px 15px;
+  color: #444;
+}
+.active{
+    background: rgb(254, 230, 227);
+    color: #000;
+}
+
+.addButton{
+    color: red;  
+    font-size: 20px;
+    cursor: pointer;  
+    margin-left: 15px;
+    position: relative;
+}
+
+.addButton:hover{
+    color: rgba(255, 0, 0, 0.7);
+}
+.list-icon{
+    display: flex;
+}
+.button-text {
+    background-color:#444;
+    color: #fff;
+    top: 12px;
+    left: -28px;
+    width: 80px;
+    padding: 4px 3px;
+    font-size: 12px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    position: absolute;
+    text-align: center;
+  }
+  .link_list-text:hover{
+    color: #000;
+    background-color: #eee;
+    
+    
+  }
+.icon-list{
+    font-size: 25px;
+    text-align:right;
+    padding-right: 10px;
+    box-sizing: border-box;
+    border-radius: -9px;
+    margin-right: 10px;
+
+}
+
+@media only screen and (max-width: 768px) {
+    .bars {
+        font-size: 18px; /* Adjust font size for smaller screens */
+        margin-left: 10px; /* Adjust margin for smaller screens */
+    }
+
+    /* ... additional adjustments for smaller screens ... */
+}
