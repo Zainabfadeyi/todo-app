@@ -102,11 +102,3 @@
 
 }
 
-@media only screen and (max-width: 768px) {
-    .bars {
-        font-size: 18px; /* Adjust font size for smaller screens */
-        margin-left: 10px; /* Adjust margin for smaller screens */
-    }
-
-    /* ... additional adjustments for smaller screens ... */
-}

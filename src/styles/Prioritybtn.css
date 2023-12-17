@@ -1,0 +1,6 @@
+
+.prioritybtn{
+   display: flex;
+   padding: 10px;
+   column-gap: 10px;
+}

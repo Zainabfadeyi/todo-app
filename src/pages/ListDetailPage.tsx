@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import Sidebar from "../components/sidenavbar/Sidebar";
 import Tasksform from "../components/Task/Tasksform";
 import styles from "../styles/listDetails.module.css";
 import { IoIosCheckmark, IoIosSearch, IoMdMore } from "react-icons/io";
@@ -9,6 +8,7 @@ import DeletePopup from "../components/Todolist/DeletePopup";
 import { AiOutlineEdit } from "react-icons/ai";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import TaskInfo from "../components/Task/TaskInfo";
+import DeleteListPopup from "../components/Todolist/DeleteListPopup";
 
 interface NewList {
   id: number;
@@ -24,6 +24,7 @@ interface Task {
   dueTime: string;
   reminder: string;
 }
+
 
 interface PopupProps {
   isOpen: boolean;
@@ -42,17 +43,23 @@ function ListDetailPage() {
   const [showSort, setShowSort] = useState(false);
   const [sort, setSort] = useState<SortType>("title");
   const [showModal, setShowModal] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
+  const [editingTask, setEditingTask] = useState<Task | null>(null); 
   const openPopup = () => {
     setIsPopupOpen(true);
+    setShowButtons(false);
   };
   const openDeletePopup = () => {
     setIsDeletePopupOpen(true);
+    setShowButtons(false);
   };
   const closeDeletePopup = () => {
     setIsDeletePopupOpen(false);
+    setShowButtons(true);
   };
   const closePopup = () => {
     setIsPopupOpen(false);
+    setShowButtons(true);
   };
   const handleOnSubmit = (task: Task) => {
     console.log("New task submitted:", task);
@@ -67,6 +74,7 @@ function ListDetailPage() {
     setTasks([]);
     setIsDeletePopupOpen(false);
   };
+  
   const sortDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -103,7 +111,6 @@ function ListDetailPage() {
       document.removeEventListener("click", handleOutEdit);
     };
   }, []);
-  
 
   const openMoreOptions = () => {
     setShowMoreOptions(true);
@@ -119,9 +126,11 @@ function ListDetailPage() {
   };
 
   const handleDeleteList = () => {
-    // Logic to handle delete list
-    closeMoreOptions();
+    setIsDeletePopupOpen(true); // Open the delete list popup
+    setShowButtons(false);
+    // closeMoreOptions();
   };
+  
 
   return (
     <>
@@ -138,6 +147,7 @@ function ListDetailPage() {
                   <button
                     className={styles.taskIconButtons}
                     onClick={() => setShowSort(!showSort)}
+                    
                   >
                     <MdSort />
                   </button>
@@ -167,7 +177,7 @@ function ListDetailPage() {
                     </div>
                   ) : null}
                 </div>
-                <div className={styles.taskIconWrapper}  ref={EditDropdownRef}>
+                <div className={styles.taskIconWrapper} ref={EditDropdownRef}>
                   <button
                     className={styles.taskIconButtons}
                     onClick={() => setShowMoreOptions(!showMoreOptions)}
@@ -186,10 +196,10 @@ function ListDetailPage() {
                       <div
                         className={styles.itemDropdownmore}
                         onClick={handleDeleteList}
-                        style={{color:"red"}}
+                        style={{ color: "red" }}
                       >
                         <RiDeleteBin5Line />
-                        <p >Delete List</p>
+                        <p>Delete List</p>
                       </div>
                     </div>
                   )}
@@ -198,35 +208,36 @@ function ListDetailPage() {
             </div>
           </header>
           <hr style={{ width: "100%" }} />
-          <div style={{ textAlign: "left" }}
-          className={styles.taskText}>
+          <div style={{ textAlign: "left" }} className={styles.taskText}>
             {tasks.map((task, index) => (
-              <div key={index} className={styles.properties}
-              onClick={() => setShowModal(true)}>
-                <button onClick={() => setChecked(!checked)}>
+              <div
+                key={index}
+                className={styles.properties}
+                
+              >
+                <button
+                  onClick={() => setChecked(!checked)}
+                  className={styles.propertiesButton}
+                >
                   {checked && <IoIosCheckmark />}
                 </button>
                 <div className={styles.Taskprops}
-                
-                >
+                onClick={() => {setShowModal(true);
+                  setEditingTask(task);
+                }}>
                   <h3>{task.title}</h3>
                   <p>{task.description}</p>
                   <p>{task.dueDate}</p>
-                  
                 </div>
-                {
-                  showModal && <TaskInfo setShowModal={setShowModal}/>
-                  }
+                {showModal && <TaskInfo 
+                setShowModal={setShowModal} 
+                // task={editingTask}
+                />}
               </div>
             ))}
-              {/* <div>
-                  <button onClick={() => setShowModal(true)}>Show modal</button>
-                  {
-                  showModal && <TaskInfo setShowModal={setShowModal}/>
-                  }
-                </div> */}
+          
           </div>
-          <div className="add-task">
+          <div className="add-task" >
             <button className={styles.taskButton} onClick={openPopup}>
               + Add Task
             </button>
@@ -240,8 +251,7 @@ function ListDetailPage() {
           </div>
           {isPopupOpen && (
             <Tasksform
-              isOpen={isPopupOpen}
-              onClose={closePopup}
+              onCancel={closePopup}
               onSubmit={handleOnSubmit}
             />
           )}
@@ -250,6 +260,11 @@ function ListDetailPage() {
           isOpen={isDeletePopupOpen}
           onClose={closeDeletePopup}
           onDeleteAll={handleClearAllTasks}
+        />
+        <DeleteListPopup
+        isOpen={isDeletePopupOpen}
+        onClose={closeDeletePopup}
+        onDeleteList={handleDeleteList}
         />
       </div>
     </>

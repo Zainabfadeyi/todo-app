@@ -33,7 +33,7 @@
    column-gap: 10px;
    padding: 10px;
 }
-.properties button {
+.propertiesButton {
    min-width: 18px;
    min-height: 18px;
    height: 18px;
@@ -50,6 +50,7 @@
 }
 .Taskprops{
    font-size: 12px;
+   cursor: pointer;
 }
 header{
    box-sizing: border-box;
@@ -130,6 +131,6 @@ header{
 .itemDropdownmore:hover {
    background: #eee;
 }
-.taskText{
+/* .taskText{
    cursor: pointer;
-}
+} */

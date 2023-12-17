@@ -1,25 +1,8 @@
-import React, {
-  ChangeEvent,
-  useState,
-  useEffect,
-  useRef,
-  FormEvent,
-} from "react";
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  InputLabel,
-  DialogActions,
-  TextField,
-  MenuItem,
-} from "@mui/material";
-
-interface PopupProps {
-  isOpen: boolean;
-  onClose: () => void;
+import React, { ChangeEvent, useState, useRef, FormEvent } from 'react';
+import styles from "../../styles/taskform.module.css"
+interface TaskFormProps {
   onSubmit: (task: Task) => void;
+  onCancel: () => void;
 }
 
 interface Task {
@@ -32,31 +15,16 @@ interface Task {
   reminder: string;
 }
 
-const handleSubmitLogic = (task: Task, onSubmit: (task: Task) => void) => {
-  onSubmit({
-    id: Math.floor(Math.random() * 10000),
-    title: task.title,
-    description: task.description,
-    priority: task.priority,
-    dueDate: task.dueDate,
-    dueTime: task.dueTime,
-    reminder: task.reminder,
-  });
-};
-
-export const TaskForm: React.FC<PopupProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-}) => {
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
+  const [showBorder, setShowBorder] = useState(false);
   const [task, setTask] = useState<Task>({
     id: 0,
-    title: "",
-    description: "",
-    priority: "Low",
-    dueDate: "",
-    dueTime: "",
-    reminder: "",
+    title: '',
+    description: '',
+    priority: '',
+    dueDate: '',
+    dueTime: '',
+    reminder: '',
   });
 
   const handleChange = (field: keyof Task, value: string) => {
@@ -66,134 +34,129 @@ export const TaskForm: React.FC<PopupProps> = ({
     }));
   };
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange("dueDate", e.target.value);
+    handleChange('dueDate', e.target.value);
   };
 
   const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange("dueTime", e.target.value);
+    handleChange('dueTime', e.target.value);
   };
+
   const handleReminderChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange("reminder", e.target.value);
+    handleChange('reminder', e.target.value);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleSubmitLogic(task, onSubmit);
+    onSubmit({
+      id: Math.floor(Math.random() * 10000),
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      dueDate: task.dueDate,
+      dueTime: task.dueTime,
+      reminder: task.reminder,
+    });
     setTask({
       id: 0,
-      title: "",
-      description: "",
-      priority: "Low",
-      dueDate: "",
-      dueTime: "",
-      reminder: "",
+      title: '',
+      description: '',
+      priority: 'Low',
+      dueDate: '',
+      dueTime: '',
+      reminder: '',
     });
-    onClose(); // Optionally close the dialog after submission
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      aria-labelledby="dialog-title"
-      aria-describedby="dialog-description"
-      maxWidth="lg"
+    <>
+    <div className={styles.formWraper} style={{ borderColor: showBorder ? "#ccc" : "#fff" }} onFocus={() => setShowBorder(true)}>
+    <form onSubmit={handleSubmit}>
+      <div className={styles.TaskWrapper}>
+        <div className={styles.formTnD}>
+            
+            <div>
+                <input
+                  placeholder='Task name '
+                  type="text"
+                  value={task.title}
+                  onChange={(e) => handleChange('title', e.target.value)}
+                  required
+                  className={styles.Title}
+                />
+            </div>
+        
+
+                <div >
       
-    >
-      <DialogTitle id="dialog-title">Add Task</DialogTitle>
-      <form onSubmit={handleSubmit} >
-        <DialogContent className="forms" style={{ width: "700px" }} >
-          <InputLabel htmlFor="title">Title</InputLabel>
-          <TextField
-            id="title"
-            value={task.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            fullWidth
-            required
-          />
+                  <textarea
+                    className={styles.TaskDescription}
+                    placeholder='Description'
+                    value={task.description}
+                    onChange={(e) => handleChange('description', e.target.value)}
+                  />
+                </div>
+            </div>
 
-          <InputLabel htmlFor="description">Description</InputLabel>
-          <TextField
-            id="description"
-            value={task.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            multiline
-            fullWidth
-          />
+          <div  className={styles.OtherWrapper}>
+            <div className={styles.inputContainer}>
+              <label className={styles.Tasklabel}>Priority</label>
+              <select
+                value={task.priority}
+                onChange={(e) => handleChange('priority', e.target.value)}
+                className={styles.taskselect}  
+              >
+                <option value="">Select...</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
 
-          <InputLabel htmlFor="priority">Priority</InputLabel>
-          <TextField
-            select
-            id="priority"
-            value={task.priority}
-            onChange={(e) => handleChange("priority", e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="Low">Low</MenuItem>
-            <MenuItem value="Medium">Medium</MenuItem>
-            <MenuItem value="High">High</MenuItem>
-          </TextField>
+              </select>
+            </div>
 
-          <InputLabel htmlFor="dueDate">Due Date</InputLabel>
-          <TextField
-            id="dueDate"
-            type="date"
-            value={task.dueDate}
-            onChange={handleDateChange}
-            fullWidth
-          />
+            <div className={styles.inputContainer}>
+              <label className={styles.Tasklabel}>Due Date</label>
+              <input
+                type="date"
+                value={task.dueDate}
+                onChange={handleDateChange}
+                className={styles.taskselect}
+              />
+            </div>
 
-          <InputLabel htmlFor="dueTime">Due Time</InputLabel>
-          <TextField
-            id="dueTime"
-            type="time"
-            value={task.dueTime}
-            onChange={handleTimeChange}
-            fullWidth
-          />
+            <div className={styles.inputContainer}>
+              <label className={styles.Tasklabel}>Due Time</label>
+              <input
+                type="time"
+                value={task.dueTime}
+                onChange={handleTimeChange}
+                className={styles.taskselect}
+              />
+            </div>
 
-          <InputLabel htmlFor="reminder">Reminder</InputLabel>
-          <TextField
-            id="reminder"
-            type="datetime-local"
-            value={task.reminder}
-            onChange={handleReminderChange}
-            fullWidth
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setTask({
-                id: 0,
-                title: "",
-                description: "",
-                priority: "Low",
-                dueDate: "",
-                dueTime: "",
-                reminder: "",
-              });
-              onClose();
-            }}
-            type="button"
-            color="secondary"
-          >
-            Cancel
-          </Button>
-          <Button type="submit" color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+            <div className={styles.inputContainer}>
+              <label className={styles.Tasklabel}>Reminder</label>
+              <input
+                type="datetime-local"
+                value={task.reminder}
+                onChange={handleReminderChange}
+                className={styles.taskselect}
+              />
+            </div>
+        </div>
+        <hr />
+
+          <div className={styles.TaskButtonform}>
+            <button type="button" onClick={() => onCancel()}
+            className={styles.controlBtnClose}>
+              Cancel
+            </button>
+            <button type="submit" className={styles.controlBtn}>Add Task</button>
+          </div>
+      </div>
+    </form>
+    </div>
+    </>
   );
 };
 

@@ -77,6 +77,7 @@ export const DeletePopup: React.FC<PopupProps> = ({
             }}
           >
             Delete
+            
           </Button>
         </DialogActions>
       </Dialog>

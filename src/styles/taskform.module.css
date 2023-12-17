@@ -1,0 +1,93 @@
+.TaskWrapper {
+   padding: 5px;
+   border-radius: 10px;
+   border: 1px solid;
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+}
+.formTnD {
+   padding: 3px;
+   border-radius: 10px;
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+   
+}
+
+.Title {
+   outline: none;
+   border: none;
+   width: 100%;
+   font-size: 10px !important;
+   font-weight: 600 !important;
+   resize: none;
+   height: 8px;
+}
+.TaskDescription {
+   outline: none;
+   border: none;
+   width: 100%;
+   font-size: 10px !important;
+   color: #444;
+   height:  30px;
+   resize: none;
+}
+.OtherWrapper {
+   display: flex;
+   column-gap: 5px;
+   margin: 10px 0;
+   width: 100%;
+   
+}
+.inputContainer{
+   column-gap: 10px;
+   margin-top: -20px;
+   padding-left: 10px;
+}
+
+.taskselect{
+   font-size: 10px;
+   display: flex;
+   color: #333;
+   outline: none;
+   min-width: 50%;
+   padding: 0px 0px 0px 0px;
+   
+}
+.Tasklabel {
+   display: block;
+   font-size: 10px;
+   font-weight: 500;
+   margin-top: 0;
+   margin-bottom: 4px;
+}
+.TaskButtonform{
+   display: flex;
+   justify-content: right;
+   column-gap: 10px;
+   margin-top: -15px;
+}
+.controlBtn {
+   outline: none;
+   border: none;
+   border: 8px;
+   padding: 4px 10px !important;
+   font-size: 10px;
+   font-weight: 600;
+   background-color: #dc4c3e;
+   color: white;
+   box-sizing: border-box;
+   cursor: pointer;
+}
+.controlBtnClose {
+   outline: none;
+   border: none;
+   border: 8px;
+   padding: 4px 10px !important;
+   font-size: 10px;
+   font-weight: 600;
+   background-color: #f5f5f5;
+   box-sizing: border-box;
+   cursor: pointer;
+}
