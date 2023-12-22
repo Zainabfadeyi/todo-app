@@ -7,9 +7,13 @@ import React, {
 } from "react";
 import "../../styles/RegStyle.css";
 // import AuthContext from "./context/AuthProvider";
-// import axios from './api/axios';
+import axios from '../../api/axios';
+import {Link} from "react-router-dom"
+import { FaFingerprint } from "react-icons/fa";
 
-const LOGIN_URL = "/login";
+
+
+const LOGIN_URL = "/api/v1/auth/login";
 
 const Login: React.FC = () => {
   // const { setAuth } = useContext(AuthContext);
@@ -31,51 +35,62 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // try {
-    //     const response = await axios.post(
-    //         LOGIN_URL,
-    //         JSON.stringify({ user, pwd }),
-    //         {
-    //             headers: { 'Content-Type': 'application/json' },
-    //             withCredentials: true
-    //         }
-    //     );
-    //     console.log(JSON.stringify(response?.data));
-    //     const accessToken = response?.data?.accessToken;
-    //     const roles = response?.data?.roles;
-    // setAuth({ user, pwd, roles, accessToken });
-    console.log(user, pwd);
-    setUser("");
-    setPwd("");
-    setSuccess(true);
-    // } catch (err) {
-    //     if (!err?.response) {
-    //         setErrMsg('No Server Response');
-    //     } else if (err.response?.status === 400) {
-    //         setErrMsg('Missing Username or Password');
-    //     } else if (err.response?.status === 401) {
-    //         setErrMsg('Unauthorized');
-    //     } else {
-    //         setErrMsg('Login Failed');
-    //     }
-    //     if (errRef.current) errRef.current.focus();
-    // }
+    
+    try {
+        const response = await axios.post(
+            LOGIN_URL,
+            { email: user, password: pwd },
+            {
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            }
+        );
+        console.log(JSON.stringify(response?.data));
+        const accessToken = response?.data?.accessToken;
+        const roles = response?.data?.roles;
+        console.log(accessToken, roles);
+          setUser("");
+          setPwd("");
+          setSuccess(true);
+    } catch (err  : any) {
+      console.log(err, "==errr==")
+        if (!err?.response) {
+            setErrMsg('No Server Response');
+        } else if (err.response?.status === 400) {
+            setErrMsg('Missing Username or Password');
+        } else if (err.response?.status === 401) {
+            setErrMsg('Unauthorized');
+        } else {
+            setErrMsg('Login Failed');
+        }
+        if (errRef.current) errRef.current.focus();
+    }
   };
 
   return (
-    <>
-      <body className="RegLogin">
+    < >
+    
+      <div className="Login">
+
         {success ? (
-          <section>
+          <section className="suggest">
             <h1>You are logged in!</h1>
-            <br />
-            <p>
+            <span className="line">
               <a href="./dashboard">Go to Dashboard</a>
-            </p>
+            </span>
           </section>
         ) : (
-          <section>
+          <div className="RegContainer">
+            <div className="LogoWrapper"> 
+                <Link to={"/"}>
+                    <div > 
+                        <FaFingerprint/>
+                        <span>TODO</span>
+                    </div> 
+                </Link>
+              </div>
+          <section className="sectionReg">
+
             <p
               ref={errRef}
               className={errMsg ? "errmsg" : "offscreen"}
@@ -84,9 +99,11 @@ const Login: React.FC = () => {
               {errMsg}
             </p>
             <h1>Sign In</h1>
-            <form onSubmit={handleSubmit}>
-              <label htmlFor="username">Username:</label>
-              <input
+            <form onSubmit={handleSubmit}
+            className="formReg">
+              <label htmlFor="username" className="RegLabel">Username:</label>
+              <input 
+              className="inputReg"
                 type="text"
                 id="username"
                 ref={userRef}
@@ -96,27 +113,32 @@ const Login: React.FC = () => {
                 required
               />
 
-              <label htmlFor="password">Password:</label>
+              <label htmlFor="password" className="RegLabel">Password:</label>
               <input
+              className="inputReg"
                 type="password"
                 id="password"
                 onChange={(e) => setPwd(e.target.value)}
                 value={pwd}
                 required
               />
-              <button type="submit">Sign In</button>
+              <button type="submit" className="buttonReg" >Sign In</button>
             </form>
-            <p>
+            <p className="suggest">
               Need an Account?
-              <br />
               <span className="line">
-                {/*put router link here*/}
                 <a href="./register">Sign Up</a>
               </span>
             </p>
           </section>
+          </div>
         )}
-      </body>
+
+        <div className="ImgContainer">
+            <img src="public/images/svg-11.svg"  className="RegImage" />
+        </div>
+
+      </div>
     </>
   );
 };

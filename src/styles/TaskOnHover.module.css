@@ -1,0 +1,49 @@
+.taskIconWrapper {
+   position: relative;
+
+}
+.taskMoreButtons{
+   background-color: #fff;
+   border-radius: none;
+   border: none;
+   margin-top: 0;
+   cursor: pointer;
+   padding: 6px;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+}
+.dropdownmore {
+   width: 150px;
+   border-radius: 10px;
+   border: 1px solid #bbb;
+   position: absolute;
+   top: 30;
+   right: 0;
+   background-color: #fff;
+   overflow: hidden;
+  
+}
+.itemDropdownmore {
+   background: #fff;
+   transition: .4s linear;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   column-gap: 10px;
+   padding: 5px;
+   font-size: 14px;
+   color: #222
+}
+.itemDropdownmore:hover {
+   background: #eee;
+}
+.TaskIcon{
+   display: inline-flex;
+   margin-top: -5px;
+}
+.taskMoreButtons:hover{
+   background-color: #eee;
+}
+
+

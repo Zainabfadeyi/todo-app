@@ -3,6 +3,7 @@ import styles from "../styles/list.module.css";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 interface NewList {
   id: number;
   text: string;
@@ -17,8 +18,10 @@ interface Todo {
 function MyListPage() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [lists, setLists] = useState<NewList[]>([]);
+  const [listName, setListName] = useState(""); 
   const openPopup = () => {
     setIsPopupOpen(true);
+    setListName("")
   };
 
   const closePopup = () => {
@@ -31,22 +34,15 @@ function MyListPage() {
     // Handle the logic for adding a new list
     setLists((prevLists) => [...prevLists, newList]);
     console.log("New list submitted:", newList);
-
     closePopup();
-    const newTodos: NewList[] = [newList, ...lists];
-    setLists(newTodos);
-    console.log(newTodos);
+
+    // const newTodos: NewList[] = [newList, ...lists];
+    // setLists(newTodos);
+    // console.log(newTodos);
     navigate(`/list/${newList.id}/${encodeURIComponent(newList.text)}`);
   };
-  const addTodo = (todo: NewList) => {
-    if (!todo.text || /^\s*$/.test(todo.text)) {
-      return;
-    }
-  };
-  const handleAddListFromSidebar = (newList: NewList) => {
-    setLists((prevLists) => [...prevLists, newList]);
-  };
-
+  
+  
   const navigate = useNavigate();
 
   return (
@@ -79,6 +75,7 @@ function MyListPage() {
           onClose={closePopup}
           onSubmit={handleSubmit}
         />
+        
       </div>
     </>
   );

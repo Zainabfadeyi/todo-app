@@ -1,5 +1,7 @@
-import React, { ChangeEvent, useState, useRef, FormEvent } from 'react';
+import React, { ChangeEvent, useState, useRef, FormEvent, useEffect } from 'react';
 import styles from "../../styles/taskform.module.css"
+import CustomDatePicker from './CustomDatePicker';
+
 interface TaskFormProps {
   onSubmit: (task: Task) => void;
   onCancel: () => void;
@@ -17,6 +19,18 @@ interface Task {
 
 const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   const [showBorder, setShowBorder] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
+  const handleCustomDateChange = (value: string) => {
+    setTask((prevTask) => ({
+      ...prevTask,
+      dueDate: value,
+    }));
+  };
+  const toggleShortcuts = () => {
+    setShowShortcuts(!showShortcuts);
+  };
+
   const [task, setTask] = useState<Task>({
     id: 0,
     title: '',
@@ -33,6 +47,42 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
       [field]: value,
     }));
   };
+  const handleShortcutChange = (shortcut: string) => {
+    let newDate:string;
+
+    switch (shortcut) {
+      case 'today':
+        newDate = today;
+        break;
+      case 'tomorrow':
+        const tomorrow = new Date();
+        tomorrow.setDate(todayDate.getDate() + 1);
+        newDate = tomorrow.toISOString().split('T')[0];
+        break;
+     
+      case 'nextWeekend':
+        const nextWeekend = new Date();
+        const daysUntilNextSaturday = 6 - nextWeekend.getDay() + 1;
+        nextWeekend.setDate(todayDate.getDate() + daysUntilNextSaturday);
+        newDate = nextWeekend.toISOString().split('T')[0];
+        break;
+      case 'nextWeek':
+        const nextWeek = new Date();
+        nextWeek.setDate(todayDate.getDate() + 7); // Adding 7 days to get the next week
+        newDate = nextWeek.toISOString().split('T')[0];
+        break;
+        
+      default:
+        newDate = today;
+    }
+    console.log("sdfasdfasdfsdfsdfsdf", newDate);
+    setTask((prevTask) => ({
+      ...prevTask,
+      dueDate: newDate,
+    }));
+    setShowShortcuts(false);
+  };
+  
 
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleChange('dueDate', e.target.value);
@@ -67,7 +117,12 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
       reminder: '',
     });
   };
-
+  const today = new Date().toISOString().split('T')[0];
+  const todayDate = new Date();
+  useEffect(() => {
+    console.log(task)
+  }, [task])
+  
   return (
     <>
     <div className={styles.formWraper} style={{ borderColor: showBorder ? "#ccc" : "#fff" }} onFocus={() => setShowBorder(true)}>
@@ -104,7 +159,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
               <select
                 value={task.priority}
                 onChange={(e) => handleChange('priority', e.target.value)}
-                className={styles.taskselect}  
+                className={styles.taskselect}
               >
                 <option value="">Select...</option>
                 <option value="Low">Low</option>
@@ -116,21 +171,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
 
             <div className={styles.inputContainer}>
               <label className={styles.Tasklabel}>Due Date</label>
-              <input
-                type="date"
-                value={task.dueDate}
-                onChange={handleDateChange}
-                className={styles.taskselect}
-              />
-            </div>
-
+              <div className={styles.CustomDatepicker}>
+              <CustomDatePicker setTask={setTask}/>
+              </div>
+              </div>
             <div className={styles.inputContainer}>
               <label className={styles.Tasklabel}>Due Time</label>
               <input
                 type="time"
                 value={task.dueTime}
                 onChange={handleTimeChange}
-                className={styles.taskselect}
+                className={styles.taskSelectTime}
               />
             </div>
 
@@ -144,7 +195,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
               />
             </div>
         </div>
-        <hr />
 
           <div className={styles.TaskButtonform}>
             <button type="button" onClick={() => onCancel()}

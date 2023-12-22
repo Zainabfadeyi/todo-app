@@ -1,15 +1,8 @@
-import React, { useState } from 'react'
-import TaskInfo from '../components/Task/TaskInfo'
+import React from 'react'
 
-function Today() {
-  const [showModal, setShowModal] = useState(false);
+const Today = () => {
   return (
-    <div>
-      <button onClick={() => setShowModal(true)}>Show modal</button>
-      {
-       showModal && <TaskInfo setShowModal={setShowModal}/>
-      }
-    </div>
+    <div>Today</div>
   )
 }
 

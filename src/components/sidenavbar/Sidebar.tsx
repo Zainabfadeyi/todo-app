@@ -60,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddList }) => {
 
   return (
     <>
-      <div className={`container ${isOpen ? "" : "sidebar-closed"}`}>
+      <div className={`nav ${isOpen ? "" : "sidebar-closed"}`}>
         <div style={{ width: isOpen ? "220px" : "50px" }} className="sidebar">
           <div className="top_section">
             <h1 style={{ display: isOpen ? "block" : "none" }} className="logo">
@@ -116,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddList }) => {
                   {hover && (
                     <p
                       className="button-text"
-                      style={{ marginTop: isOpen ? "-45px" : "-10px" }}
+                      style={{ marginTop: isOpen ? "-45px" : "10px" }}
                     >
                       Add list{" "}
                     </p>

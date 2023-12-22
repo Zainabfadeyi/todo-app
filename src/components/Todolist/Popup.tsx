@@ -40,19 +40,20 @@ export const Popup: React.FC<PopupProps> = (
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setListName(e.target.value);
   };
-
   const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [isOpen]);
+  
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleSubmitLogic(listName, onSubmit);
     setListName("");
-    onClose(); // Optionally close the dialog after submission
+    onClose(); 
   };
 
   const [newLists, setNewLists] = useState<NewList[]>([]);
@@ -61,9 +62,15 @@ export const Popup: React.FC<PopupProps> = (
     if (!nlist.text || /^\s*$/.test(nlist.text)) {
       return;
     }
-    // Add your logic to handle the new list
+   
     setNewLists((prevLists) => [...prevLists, nlist]);
   };
+  useEffect(() => {
+    console.log("Popup isOpen:", isOpen);
+    if (isOpen) {
+      setNewLists([]);
+    }
+  }, [isOpen])
 
   return (
     <>
@@ -89,6 +96,7 @@ export const Popup: React.FC<PopupProps> = (
               padding: "8px 15px",
             }}
             ref={inputRef}
+            required
           />
           <DialogContentText
             id="dialog-description"
