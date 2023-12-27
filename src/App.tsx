@@ -4,17 +4,13 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./components/Auth/register";
 import Login from "./components/Auth/login";
-import Dashboard from "./pages/Dashboard";
+import Inbox from "./pages/Inbox";
 import MyListPage from "./pages/MyListPage";
 import Today from "./pages/Today";
-import Sidebar from "./components/sidenavbar/Sidebar";
 import ListDetailPage from "./pages/ListDetailPage";
 import Layout from "./components/Layout/Layout";
 import LayoutHome from "./components/Layout/LayoutHome";
 import Home from "./components/pages/HomePage/Home";
-import Navbar from "./components/others/Navbar";
-// import Products from './components/pages/Products/Products';
-// import SignUp from './components/pages/SignUp/SignUp';
 
 const App: React.FC = () => {
   return (
@@ -28,8 +24,8 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
 
           <Route path="/" element={<Layout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="today" element={<Today />} />
+            <Route path="inbox" element={<Inbox />} />
+            <Route path="today" element={<Today/>} />
             <Route path="list" element={<MyListPage />} />
             <Route path="list/:id/:name" element={<ListDetailPage />} />
           </Route>

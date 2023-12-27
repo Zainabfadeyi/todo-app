@@ -10,8 +10,9 @@ import "../../styles/RegStyle.css";
 import axios from '../../api/axios';
 import {Link} from "react-router-dom"
 import { FaFingerprint } from "react-icons/fa";
-
-
+import { useDispatch, useSelector } from "../../app/hook";
+import { clearUser, getUser, setUser, setUser as setUserAction } from "../../app/slices/user.slice";
+import { login } from '../../app/slices/authSlice';
 
 const LOGIN_URL = "/api/v1/auth/login";
 
@@ -20,38 +21,48 @@ const Login: React.FC = () => {
   const userRef = useRef<HTMLInputElement>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
 
-  const [user, setUser] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [pwd, setPwd] = useState<string>("");
   const [errMsg, setErrMsg] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
-
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   useEffect(() => {
     if (userRef.current) userRef.current.focus();
   }, []);
 
+
+
+useEffect(() => {
+  console.log('Current Authentication State:', isAuthenticated);
+}, [isAuthenticated]);
+
   useEffect(() => {
     setErrMsg("");
-  }, [user, pwd]);
+  }, [email, pwd]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     try {
         const response = await axios.post(
             LOGIN_URL,
-            { email: user, password: pwd },
+            { email, password: pwd },
             {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             }
         );
-        console.log(JSON.stringify(response?.data));
-        const accessToken = response?.data?.accessToken;
-        const roles = response?.data?.roles;
-        console.log(accessToken, roles);
-          setUser("");
+       
+          setEmail("");
           setPwd("");
           setSuccess(true);
+          const userDetailsResponse = await axios.get('/api/v1/user/details', {
+            headers: { Authorization: `Bearer ${response?.data?.accessToken}` },
+          });
+          const userDetails = userDetailsResponse?.data;
+          dispatch(login(userDetails));
+          dispatch(setUser(userDetails));
     } catch (err  : any) {
       console.log(err, "==errr==")
         if (!err?.response) {
@@ -65,6 +76,7 @@ const Login: React.FC = () => {
         }
         if (errRef.current) errRef.current.focus();
     }
+    
   };
 
   return (
@@ -101,15 +113,15 @@ const Login: React.FC = () => {
             <h1>Sign In</h1>
             <form onSubmit={handleSubmit}
             className="formReg">
-              <label htmlFor="username" className="RegLabel">Username:</label>
+              <label htmlFor="username" className="RegLabel">Email:</label>
               <input 
               className="inputReg"
                 type="text"
-                id="username"
+                id="email"
                 ref={userRef}
                 autoComplete="off"
-                onChange={(e) => setUser(e.target.value)}
-                value={user}
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
                 required
               />
 

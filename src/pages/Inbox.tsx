@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react'
-import  styles from "../styles/today.module.css"
+import  styles from "../styles/inbox.module.css"
 import { MdCheck, MdSort } from "react-icons/md";
 import { IoIosCheckmark, IoIosSearch, IoMdMore } from "react-icons/io";
 import TaskOnHover from "../components/Task/TaskOnHover";
@@ -7,12 +7,12 @@ import TaskInfo from "../components/Task/TaskInfo";
 import Tasksform from "../components/Task/Tasksform";
 import { Task } from './ListDetailPage';
 
-interface TodayProps {
+interface InboxProps {
   tasks: Task[];
 }
 
 type SortType = "due" | "priority" | "title";
-const Today: React.FC<{ tasks: Task[] }> = () => { {
+const Inbox: React.FC<{ tasks: Task[] }> = ({ tasks }) => { {
   const [isVisible, setIsVisible] = useState(true);
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
@@ -99,7 +99,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3>Today</h3>
+            <h3>Inbox</h3>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -200,24 +200,40 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
           )}
         </div>
         ):(
+          <div>
+            <div
+            className={styles.addTask}
+            style={{ display: showButtons ? "flex" : "none" }}
+            
+          >
+            <button className={styles.taskButton} onClick={openPopup}>
+              + Add Task
+            </button>
+          </div>
+          {isPopupOpen && (
+            <div
+             onSubmit={addContent}>
+            <Tasksform onCancel={closePopup} onSubmit={handleOnSubmit} />
+            </div>
+          )}
         <div className={styles.image}>
           <div>
-            <img src="\public\images\image-1.jpg" className={styles.defaultImage} />
+            <img src="\public\images\image-2.jpg" className={styles.defaultImage} />
           </div>
           <div className={styles.text}>
-            What do you need to get done today?
+              Your peace of mind is priceless
             </div>
             <div className={styles.textII}>
-            By default, tasks added here will be due today. Click + to add a task
+            Well done, All your tasks are organized in the right place.
             </div>
+        </div>
         </div>
         )}
       </div>
     </div>
-    <button onClick={addContent}>Add Content</button>
     </>
   )
   }
 }
 
-export default Today
+export default Inbox

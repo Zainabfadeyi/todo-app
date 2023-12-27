@@ -11,13 +11,14 @@ import TaskInfo from "../components/Task/TaskInfo";
 import DeleteListPopup from "../components/Todolist/DeleteListPopup";
 import EditListPopup from "../components/Todolist/EditListPopup";
 import TaskOnHover from "../components/Task/TaskOnHover";
+import Today from "./Today";
 
 interface NewList {
   id: number;
   text: string;
 }
 
-interface Task {
+export interface Task {
   id: number;
   title: string;
   description: string;
@@ -275,9 +276,9 @@ function ListDetailPage() {
                 <button
                   onClick={() => setChecked(!checked)}
                   className={styles.propertiesButton}
-                  style={{ borderColor: task.priority === "Low" ? "green" : task.priority === "Medium" ? "orange" : "red" }}
+                  style={{ borderColor: task.priority === "Low" ? "green" : task.priority === "Medium" ? "orange" : task.priority === "High" ?"red": "none" }}
                 >
-                  {checked && <IoIosCheckmark color={task.priority === "Low" ? "green" : task.priority === "Medium" ? "orange" : "red"} />}
+                  {checked && <IoIosCheckmark color={task.priority === "Low" ? "green" : task.priority === "Medium" ? "orange" : task.priority === "High" ?"red": "none"} />}
                 </button>
                 <div className={styles.Content}>
                   <div
@@ -338,6 +339,7 @@ function ListDetailPage() {
           onClose={closeEditPopup}
           onSubmit={handleEditListPopup}
         />
+        
       </div>
     </>
   );
