@@ -39,7 +39,64 @@
 .listButton:hover{
     background-color: #eee;
 }
+.myList{
+    width: 100%;
+    display: block;
+    /* margin-top: 20px; */
+}
 
+ .listItems{
+    width: 100%;   
+}
+.listItems::marker{
+    color: white;
+    outline: none;
+}
+.ListStyleWrapper{
+    width: 100%;
+    display: flex;
+
+}
+/* .ListStyleWrapper:hover{
+    background-color: #f5f5f5;
+
+} */
+.ListStyle{
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    color: black;
+    font-size: 15px;
+
+}
+.listCount{
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+}
+.HoverMore{
+    display: flex;
+    margin-top: 10px;
+    visibility: hidden;
+    
+    
+
+ }
+ .ListProps{
+    display: flex;
+    width: 100%;
+    
+ }
+ .ListProps:hover .HoverMore {
+    visibility: visible; 
+    
+  }
+  .ListProps:hover{
+    background-color:#f5f5f5;
+  }
+ /* .ListProps:hover{
+    
+} */
 
 
 

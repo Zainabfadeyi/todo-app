@@ -7,11 +7,13 @@ interface User {
    lastName:string;
    email:string
    role: string;
+   accessToken: string;
 }
 
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
+  accessToken: string | null;
 }
 
 const loadState = (): AuthState | undefined => {
@@ -38,6 +40,7 @@ const saveState = (state: AuthState) => {
 const initialState: AuthState = loadState() || {
   isAuthenticated: false,
   user: null,
+  accessToken:null
 };
 
 const authSlice = createSlice({
@@ -47,11 +50,13 @@ const authSlice = createSlice({
     login: (state, action: PayloadAction<User>) => {
       state.isAuthenticated = true;
       state.user = action.payload;
+      state.accessToken = action.payload.accessToken;
       saveState(state);
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
+      state.accessToken = null;
       saveState(state);
     },
   },

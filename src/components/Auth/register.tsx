@@ -74,7 +74,6 @@ const Register: React.FC = () => {
             return;
         }
         console.log(JSON.stringify({ firstName, lastName, email, password: pwd, role }));
-        console.log(role)
 
         try {
             const response = await axios.post(REGISTER_URL,
@@ -87,7 +86,6 @@ const Register: React.FC = () => {
             );
             console.log(response);
             console.log(response?.data);
-            console.log(JSON.stringify(response))
             setSuccess(true);
 
             setFirstName('');

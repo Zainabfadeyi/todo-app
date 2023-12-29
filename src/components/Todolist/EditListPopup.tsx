@@ -9,31 +9,24 @@ import React, {
    Button,
    Dialog,
    DialogTitle,
-   DialogContentText,
    DialogActions,
+   DialogContentText,
  } from "@mui/material";
  
- interface PopupProps {
+ interface EditPopupProps {
    isOpen: boolean;
    onClose: () => void;
-   onSubmit: (nlist: NewList) => void;
+   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  list: NewList | null;
  }
  interface NewList {
    id: number;
-   text: string;
+   name: string;
  }
- const handleSubmitLogic = (
-   listName: string,
-   onSubmit: (nlist: NewList) => void
- ) => {
-   onSubmit({
-     id: Math.floor(Math.random() * 10000),
-     text: listName,
-   });
- };
+
  
- export const Popup: React.FC<PopupProps> = (
-   { isOpen, onClose, onSubmit },
+ export const Popup: React.FC<EditPopupProps> = (
+   { isOpen, onClose, list,onSubmit  },
    props
  ) => {
    const [listName, setListName] = useState("");
@@ -47,24 +40,13 @@ import React, {
        inputRef.current.focus();
      }
    }, []);
- 
-   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-     e.preventDefault();
-     handleSubmitLogic(listName, onSubmit);
-     setListName("");
-     onClose(); // Optionally close the dialog after submission
-   };
- 
-   const [newLists, setNewLists] = useState<NewList[]>([]);
- 
-   const addNewList = (nlist: NewList) => {
-     if (!nlist.text || /^\s*$/.test(nlist.text)) {
-       return;
-     }
-     // Add your logic to handle the new list
-     setNewLists((prevLists) => [...prevLists, nlist]);
-   };
- 
+
+   useEffect(() => {
+    if (list) {
+      setListName(list.name);
+    }
+  }, [list]);
+  
    return (
      <>
        <Dialog
@@ -74,9 +56,9 @@ import React, {
          aria-describedby="dialog-description"
        >
          <DialogTitle id="dialog-title">Edit List</DialogTitle>
-         <form onSubmit={handleSubmit}>
+         <form onSubmit={(e) => onSubmit(e)}>
            <input
-             placeholder="Create a List"
+             placeholder="Edit List"
              type="text"
              value={listName}
              onChange={handleChange}
@@ -90,6 +72,7 @@ import React, {
              }}
              ref={inputRef}
              required
+             
            />
            <DialogContentText
              id="dialog-description"
@@ -98,7 +81,7 @@ import React, {
            <DialogActions>
              <Button
                onClick={() => {
-                 setListName(""); // Reset the listName state
+                 setListName("");
                  onClose();
                }}
                type="button"

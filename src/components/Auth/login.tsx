@@ -53,15 +53,18 @@ useEffect(() => {
                 withCredentials: true
             }
         );
+      
        
           setEmail("");
           setPwd("");
           setSuccess(true);
+         
           const userDetailsResponse = await axios.get('/api/v1/user/details', {
             headers: { Authorization: `Bearer ${response?.data?.accessToken}` },
           });
+          const accessToken = response?.data?.accessToken;
           const userDetails = userDetailsResponse?.data;
-          dispatch(login(userDetails));
+          dispatch(login({...userDetails,accessToken}));
           dispatch(setUser(userDetails));
     } catch (err  : any) {
       console.log(err, "==errr==")
