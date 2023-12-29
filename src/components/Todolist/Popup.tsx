@@ -17,23 +17,25 @@ interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (nlist: NewList) => void;
+  createListAPI: (listName: string) => Promise<void>;
+  
 }
 interface NewList {
   id: number;
-  text: string;
+  name: string;
 }
-const handleSubmitLogic = (
-  listName: string,
-  onSubmit: (nlist: NewList) => void
-) => {
-  onSubmit({
-    id: Math.floor(Math.random() * 10000),
-    text: listName,
-  });
-};
+// const handleSubmitLogic = (
+//   listName: string,
+//   onSubmit: (nlist: NewList) => void
+// ) => {
+//   onSubmit({
+//     id: Math.floor(Math.random() * 10000),
+//     text: listName,
+//   });
+// };
 
 export const Popup: React.FC<PopupProps> = (
-  { isOpen, onClose, onSubmit },
+  { isOpen, onClose, onSubmit,createListAPI },
   props
 ) => {
   const [listName, setListName] = useState("");
@@ -49,17 +51,25 @@ export const Popup: React.FC<PopupProps> = (
   }, [isOpen]);
   
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
+    // e.preventDefault();
+    // handleSubmitLogic(listName, onSubmit);
+    // setListName("");
+    // onClose(); 
     e.preventDefault();
-    handleSubmitLogic(listName, onSubmit);
-    setListName("");
-    onClose(); 
+    try {
+      await createListAPI(listName);
+      setListName("");
+      onClose();
+    } catch (error) {
+      console.error("Error creating list:", error);
+    }
   };
 
   const [newLists, setNewLists] = useState<NewList[]>([]);
 
   const addNewList = (nlist: NewList) => {
-    if (!nlist.text || /^\s*$/.test(nlist.text)) {
+    if (!nlist. name || /^\s*$/.test(nlist.name)) {
       return;
     }
    

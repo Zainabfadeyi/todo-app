@@ -84,13 +84,18 @@
    margin-top: 0;
    margin-bottom: 4px;
 }
+.footer{
+   border-top: 1px solid #ccc;
+   display: flex;
+}
 .TaskButtonform{
    display: flex;
    justify-content: right;
    column-gap: 10px;
-   border-top: 1px solid #ccc;
    padding: 6px 0;
+   width: 100%;
 }
+
 .controlBtn {
    outline: none;
    border: none;
@@ -115,6 +120,39 @@
    cursor: pointer;
    border-radius: 5px;
 }
+.Listform{
+   display: flex;
+   width: 100%;
+}
+.inboxWrapper{
+   display: flex;
+   /* border: 1px solid transparent;
+   max-width: 100%;
+   margin-top: 10px; */
+   cursor: pointer;
+   
+}
+.inboxButton{
+   border: none;
+   border-radius: none;
+   display: flex;
+   cursor: pointer;
+   outline: none;
+   box-sizing: border-box;
+   background-color: #fff;
+   margin-top: 6px;
+}
+.inboxSpan:hover{
+   background-color: #f5f5f5;
+}
+.info{
+   display: flex;
+   column-gap: 3px;
+   padding: 8px;
+}
+/* .info:hover{
+   background-color: #ccc;
+} */
 
 .dateShortcuts {
    
@@ -126,7 +164,7 @@
 }
 
 .itemdropdownButton{
-   background: #fff;
+  background-color: #fff;
    cursor: pointer;
    display: flex;
    align-items: center;
@@ -135,12 +173,14 @@
    color:black;
    border-radius: none;
    border: none;
-    margin-top: -5px;
-    width: 100%;
+   margin-top: -5px;
+   width: 100%;
+    
 }
 
 .dropdownmore {
-   max-width: 100%;
+   /* max-width: 100%; */
+   width: 100%;
    border-radius: 10px;
    display: flex;
    top: 30;
@@ -150,7 +190,10 @@
    padding: 5px;
    column-gap: 10px;
 }
-.dropdownmore:hover{
+.dropdownmore:hover {
+   background-color: #f5f5f5;
+}
+.itemdropdownButton:hover{
    background-color: #f5f5f5;
 }
 .datepicker{

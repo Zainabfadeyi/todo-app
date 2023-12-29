@@ -14,9 +14,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
   onShortcutChange,
 }) => {
   const [formattedDate, setFormattedDate] = useState("");
+  const [showDatepicker, setShowDatepicker] = useState(false);
   const formatDate = (val: string) => {};
   useEffect(() => {
-    console.log("SDfsdf", value)
     switch (value) {
       case "today":
         setFormattedDate("Today");
@@ -33,6 +33,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
       default:
         setFormattedDate(value);
     }
+    setShowDatepicker(false);
   }, [value]);
 
   return (

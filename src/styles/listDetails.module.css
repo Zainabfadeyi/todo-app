@@ -36,15 +36,12 @@
 }
 .HoverMore{
    display: flex;
-   
 
 }
 .Content{
    display: inline-flex;
    /* column-gap: 300px; */
    width: 100%;
-
-   
 
 }
 .propertiesButton {

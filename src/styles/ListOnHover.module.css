@@ -1,0 +1,43 @@
+
+
+.dropdownmore {
+   width: 150px;
+   border-radius: 10px;
+   border: 1px solid #bbb;
+   position: absolute;
+   top: 30;
+   overflow: hidden;
+   cursor: pointer;
+  
+  
+}
+.taskMoreButtons{
+   border: none;
+   padding: 5px;
+   background-color: white;
+   border-radius: none;
+   width: 100%;
+   cursor: pointer;
+}
+
+.itemDropdownmore {
+   background: #fff;
+   transition: .4s linear;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   column-gap: 10px;
+   padding: 5px;
+   font-size: 14px;
+   color: #222;
+   
+}
+.itemDropdownmore:hover {
+   background: #eee;
+}
+.TaskIcon{
+   display: flex;
+   width: 100%;
+}
+
+

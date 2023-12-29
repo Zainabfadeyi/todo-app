@@ -3,21 +3,21 @@ import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { FaFingerprint } from "react-icons/fa";
+import axios from '../../api/axios';
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
+const USERLASTNAME_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const REGISTER_URL = '/register';
+const REGISTER_URL = "/api/v1/auth/register";
 
 const Register: React.FC = () => {
   const userRef = useRef<HTMLInputElement>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
-  const roleRef = useRef<HTMLSelectElement>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
 
-  const [user, setUser] = useState<string>('');
   const [validName, setValidName] = useState<boolean>(false);
   const [userFocus, setUserFocus] = useState<boolean>(false);
   const [lastNameFocus, setLastNameFocus] = useState<boolean>(false);
@@ -36,7 +36,7 @@ const Register: React.FC = () => {
   const [validMatch, setValidMatch] = useState<boolean>(false);
   const [matchFocus, setMatchFocus] = useState<boolean>(false);
 
-  const [role, setRole] = useState<string>('user');
+  const [role, setRole] = useState<string>('USER');
 
   const [errMsg, setErrMsg] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
@@ -46,9 +46,11 @@ const Register: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setValidName(USER_REGEX.test(user));
-  }, [user]);
-
+    setValidName(USER_REGEX.test(firstName));
+  }, [firstName]);
+  useEffect(() => {
+    setValidName(USERLASTNAME_REGEX.test(lastName));
+  }, [lastName]);
   useEffect(() => {
     setValidEmail(EMAIL_REGEX.test(email));
   }, [email]);
@@ -60,34 +62,49 @@ const Register: React.FC = () => {
 
   useEffect(() => {
     setErrMsg('');
-  }, [user, firstName, lastName, email, pwd, matchPwd, role]);
+  }, [ firstName, lastName, email, pwd, matchPwd,]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const validInputs =
-      USER_REGEX.test(user) &&
-      EMAIL_REGEX.test(email) &&
-      PWD_REGEX.test(pwd) &&
-      pwd === matchPwd;
+    const v1 = USER_REGEX.test(firstName);
+        const v2 = PWD_REGEX.test(pwd);
+        if (!v1 || !v2) {
+            setErrMsg("Invalid Entry");
+            return;
+        }
+        console.log(JSON.stringify({ firstName, lastName, email, password: pwd, role }));
 
-    if (!validInputs) {
-      setErrMsg("Invalid Entry");
-      return;
-    }
+        try {
+            const response = await axios.post(REGISTER_URL,
+              
+                JSON.stringify({ firstName, lastName, email, password:pwd, role:"USER" }),
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
+                }
+            );
+            console.log(response);
+            console.log(response?.data);
+            setSuccess(true);
 
-    // Handle your form submission logic here
-    console.log(user, firstName, lastName, email, pwd, role);
-    setSuccess(true);
-
-    // Clear state and controlled inputs
-    setUser('');
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setPwd('');
-    setMatchPwd('');
-    setRole('user');
+            setFirstName('');
+            setLastName('');
+            setEmail('');
+            setPwd('');
+            setMatchPwd('');
+            setRole('USER');
+          } catch (err:any) {
+            console.error(err.response.status, err.response.data);
+            if (!err?.response) {
+                setErrMsg('No Server Response');
+            } else if (err.response?.status === 409) {
+                setErrMsg('Username Taken');
+            } else {
+                setErrMsg('Registration Failed')
+            }
+            if (errRef.current) errRef.current.focus();
+        }
   };
 
   return (
@@ -120,81 +137,6 @@ const Register: React.FC = () => {
               </p>
               <h1>Register</h1>
               <form onSubmit={handleSubmit} className="formReg">
-                {/* ... other form fields ... */}
-                {/* <label htmlFor="firstname" className="RegLabel">
-                  First Name:
-                  <FontAwesomeIcon
-                    icon={faCheck}
-                    className={firstName ? "valid" : "hide"}
-                  />
-                  <FontAwesomeIcon
-                    icon={faTimes}
-                    className={!firstName ? "hide" : "invalid"}
-                  />
-                </label>
-                <input
-                  className="inputReg"
-                  type="text"
-                  id="firstname"
-                  ref={firstNameRef}
-                  autoComplete="off"
-                  onChange={(e) => setFirstName(e.target.value)}
-                  value={firstName}
-                  required
-                />
-
-                <label htmlFor="lastname" className="RegLabel">
-                  Last Name:
-                  <FontAwesomeIcon
-                    icon={faCheck}
-                    className={lastName ? "valid" : "hide"}
-                  />
-                  <FontAwesomeIcon
-                    icon={faTimes}
-                    className={!lastName ? "hide" : "invalid"}
-                  />
-                </label>
-                <input
-                  className="inputReg"
-                  type="text"
-                  id="lastname"
-                  ref={lastNameRef}
-                  autoComplete="off"
-                  onChange={(e) => setLastName(e.target.value)}
-                  value={lastName}
-                  required
-                />
-
-                <label htmlFor="email" className="RegLabel">
-                  Email:
-                  <FontAwesomeIcon
-                    icon={faCheck}
-                    className={validEmail ? "valid" : "hide"}
-                  />
-                  <FontAwesomeIcon
-                    icon={faTimes}
-                    className={!validEmail ? "invalid" : "hide"}
-                  />
-                </label>
-                <input
-                  className="inputReg"
-                  type="email"
-                  id="email"
-                  ref={emailRef}
-                  autoComplete="off"
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
-                  required
-                  aria-invalid={!validEmail ? "true" : "false"}
-                  aria-describedby="emailnote"
-                />
-                <p
-                  id="emailnote"
-                  className={!validEmail ? "instructions" : "offscreen"}
-                >
-                  <FontAwesomeIcon icon={faInfoCircle} />
-                  Please enter a valid email address.
-                </p> */}
                 <label htmlFor="firstname" className="RegLabel">
                   First Name:
                   {
@@ -224,7 +166,6 @@ const Register: React.FC = () => {
                   onBlur={() => setUserFocus(false)}
                   required
                 />
-
                 <label htmlFor="lastname" className="RegLabel">
                   Last Name:
                   {

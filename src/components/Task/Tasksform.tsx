@@ -1,6 +1,8 @@
 import React, { ChangeEvent, useState, useRef, FormEvent, useEffect } from 'react';
 import styles from "../../styles/taskform.module.css"
 import CustomDatePicker from './CustomDatePicker';
+import { MdInbox, MdExpandMore  } from "react-icons/md";
+
 
 interface TaskFormProps {
   onSubmit: (task: Task) => void;
@@ -111,7 +113,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
       id: 0,
       title: '',
       description: '',
-      priority: 'Low',
+      priority: '',
       dueDate: '',
       dueTime: '',
       reminder: '',
@@ -195,14 +197,34 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
               />
             </div>
         </div>
-
+        <div className={styles.footer}>
+          <div className={styles.Listform}>
+            <div className={styles.inboxWrapper}>
+          
+          <button type="button" className={styles.inboxButton}>
+            <span className={styles.inboxSpan}>
+              <div className={styles.info}>
+                  <MdInbox />
+                      <span>
+                          inbox
+                      </span>
+                  <MdExpandMore />
+              </div>
+              </span>
+            </button>
+            
+            </div>
+          </div>
           <div className={styles.TaskButtonform}>
             <button type="button" onClick={() => onCancel()}
             className={styles.controlBtnClose}>
               Cancel
             </button>
-            <button type="submit" className={styles.controlBtn}>Add Task</button>
+            <button type="submit" className={styles.controlBtn}>
+              Add Task
+              </button>
           </div>
+        </div>
       </div>
     </form>
     </div>

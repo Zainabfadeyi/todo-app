@@ -8,36 +8,21 @@ import { MdWeekend } from "react-icons/md";
 import { FaCalendarCheck } from "react-icons/fa";
 import styles from "../../styles/taskform.module.css";
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  priority: string;
-  dueDate: string;
-  dueTime: string;
-  reminder: string;
-}
+
 
 
 function CustomDatePicker({ setTask }: any) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [shortcutInput, setShortcutInput] = useState<string>("");
-  const [showDate, setShowDate]=useState(false)
+  
+ const closeShortcutDate=()=>{
+  setShowShortcuts(false);
+ }
 
   const toggleShortcuts = () => {
     setShowShortcuts(!showShortcuts);
   };
-  
-  // const [task, setTask] = useState<Task>({
-  //   id: 0,
-  //   title: '',
-  //   description: '',
-  //   priority: '',
-  //   dueDate: '',
-  //   dueTime: '',
-  //   reminder: '',
-  // });
   const onShortcutChange = (shortcut: string) => {
     let newDate:string;
     console.log("the shortcut", shortcut)
@@ -73,8 +58,7 @@ function CustomDatePicker({ setTask }: any) {
     }));
     setShowShortcuts(false);
     setShortcutInput(shortcut);
-    setSelectedDate(null);
-
+    setSelectedDate(null);; 
     console.log(`Shortcut changed: ${shortcut}`);
   };
 
@@ -116,9 +100,12 @@ function CustomDatePicker({ setTask }: any) {
             />
           </div>
           {showShortcuts && (
-            <div className={styles.dropdownContent} >
+            <div className={styles.dropdownContent} 
+            onClick={closeShortcutDate}>
               <div className={styles.dateShortcuts}>
-                <div className={styles.dropdownmore}>
+                <div className={styles.dropdownmore}
+                onClick={() => toggleShortcuts()}
+                >
                   <BsFillCalendarFill />
                   <button
                     type="button"
@@ -128,12 +115,18 @@ function CustomDatePicker({ setTask }: any) {
                     Today
                   </button>
                 </div>
-                <div className={styles.dropdownmore}>
+                <div className={styles.dropdownmore}
+                onClick={closeShortcutDate}
+                >
                   <IoIosSunny />
                   <button
                     type="button"
-                    onClick={() => onShortcutChange("tomorrow")}
+                    onClick={() => {
+                      onShortcutChange("tomorrow");
+                      
+                      }}
                     className={styles.itemdropdownButton}
+
                   >
                     Tomorrow
                   </button>
@@ -166,6 +159,7 @@ function CustomDatePicker({ setTask }: any) {
                   setSelectedDate(date);
                   toggleShortcuts(); // Close shortcuts after selecting a date
                   setShortcutInput(""); 
+                  setShowShortcuts(false)
                   setTask((prevTask: any) => ({
                     ...prevTask,
                     dueDate: date?.toDateString() ?? "",

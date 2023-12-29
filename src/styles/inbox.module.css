@@ -1,0 +1,166 @@
+.container{
+   margin: 15% ;
+   align-items: center;
+   margin-top: 40px;
+   display: flex;
+}
+.wrapper{
+   text-align: left;
+   width: 100%;
+}
+
+
+.image{
+    align-items: center;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 360px;
+    text-align: center;
+    transition: opacity .17s ease-in;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+
+}
+.defaultImage{
+   display: flex;
+   justify-content: center;
+   /* padding-left: 50px; */
+
+}
+.text{
+   background-color: initial; 
+    box-sizing: border-box;
+    font-size: 16px;
+    font-weight: 300;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    vertical-align: initial;
+}
+.textII{
+   font-size: 13px;
+   
+}
+.taskIconWrapper {
+   position: relative;
+}
+.taskName {
+   display: flex;
+   padding: 5px 0;
+   align-items: center;
+   justify-content: space-between;
+}
+.taskIconButtons{
+   background-color: #fff;
+   border-radius: none;
+   border: none;
+   margin-top: 0;
+   cursor: pointer;
+   padding: 6px;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 20px;
+   width: 100%;
+}
+.taskButton:hover{
+   color: red;
+}
+.iconTextSort {
+   background-color:#444;
+   color: #fff;
+   top: 12px;
+   left: -28px;
+   width: 80px;
+   padding: 4px 3px;
+   font-size: 12px;
+   box-sizing: border-box;
+   border-radius: 5px;
+   position: absolute;
+   text-align: center;
+   margin-top: -35px;
+ }
+ .dropdown {
+   width: 150px;
+   border-radius: 10px;
+   border: 1px solid #bbb;
+   position: absolute;
+   top: 30;
+   right: 0;
+   background-color: #fff;
+   overflow: hidden;
+}
+.itemDropdown {
+   background: #fff;
+   transition: .4s linear;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 5px;
+   font-size: 14px;
+   color: #222
+}
+.taskIcons{
+   column-gap: 5px;
+   display: flex;
+   justify-content: right;
+}
+.properties{
+   font-size: 10px;
+   display: flex;
+   column-gap: 10px;
+   padding: 10px;
+   position: relative;
+}
+.propertiesButton {
+   min-width: 18px;
+   min-height: 18px;
+   height: 18px;
+   width: 18px;
+   border-radius: 50%;
+   padding: 0;
+   border: 1px solid #444;
+   background: #fff;
+   margin-top: 0;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+}
+.Content{
+   display: inline-flex;
+   /* column-gap: 300px; */
+   width: 100%;
+
+}
+.Taskprops{
+   font-size: 12px;
+   cursor: pointer;
+}
+.HoverMore {
+   visibility: hidden; 
+}
+.HoverMore{
+   display: flex;
+}
+.properties:hover .HoverMore {
+   visibility: visible; 
+ }
+.taskButton {
+   background-color:transparent;
+   color:grey;
+   border-color: transparent;
+   padding: 0px;
+   width: 90px;
+   font-size: 13px;
+   box-sizing: border-box;
+   border-radius: 500px;
+   box-shadow: 10px;
+   cursor: pointer;
+   text-align: left;
+}

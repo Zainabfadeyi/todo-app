@@ -8,8 +8,8 @@ import { Popup } from "../Todolist/Popup";
 
 export const SidebarData = [
   {
-    title: "Home",
-    path: "/dashboard",
+    title: "Inbox",
+    path: "/inbox",
     icon: <AiIcons.AiFillHome />,
     cName: "nav-text",
   },
