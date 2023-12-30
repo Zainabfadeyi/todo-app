@@ -14,7 +14,7 @@ const Layout = () => {
   };
   return (
     <div style={{ display: "flex"}}>
-      <Sidebar onAddList={handleAddList} />
+      <Sidebar/>
       <div className={styles.right}>
          <Outlet />
       </div>

@@ -1,5 +1,6 @@
 import { Popup } from "../components/Todolist/Popup";
 import EditListPopup from "../components/Todolist/EditListPopup";
+import DeleteListPopup from "../components/Todolist/DeleteListPopup";
 import styles from "../styles/list.module.css";
 import React, { useState,useEffect,FormEvent } from "react";
 import { useNavigate, Link  } from "react-router-dom";
@@ -17,12 +18,15 @@ interface NewList {
 function MyListPage() {
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [lists, setLists] = useState<NewList[]>([]);
-  const [listName, setListName] = useState(""); 
+  const [name, setName] = useState(""); 
+
+  
   const openPopup = () => {
     setIsPopupOpen(true);
-    setListName("")
+    setName("")
   };
 
   const closePopup = () => {
@@ -78,7 +82,7 @@ function MyListPage() {
       
       setLists((prevLists) => [...prevLists, newList]);
       
-      // navigate(`/list/${newList.id}/${encodeURIComponent(newList.text)}`);
+      navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
     } catch (error) {
       console.error("Error creating list:", error);
     }
@@ -106,10 +110,10 @@ function MyListPage() {
       }
     };
     fetchLists();
-  }, [isAuthenticated, userId, accessToken]);
+  }, [isAuthenticated, userId, accessToken]);//add ",list" later
 
 
-  const updateListAPI = async (listId: number, name: string) => {
+  const updateListAPI = async (listId: number, listName: string) => {
     try {
       if (!userId) {
         console.error("User ID is undefined");
@@ -119,13 +123,21 @@ function MyListPage() {
       console.log(apiUrl)
       await axios.put(
         apiUrl,
-        { id: listId, name: name },
+        {id:listId, name: listName },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
+      const updatedListsResponse = await axios.get(`/api/v1/list/all/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+  
+      const updatedLists = updatedListsResponse.data;
+      setLists(updatedLists);
     } catch (error) {
       console.error("Error updating list:", error);
     }
@@ -137,52 +149,81 @@ const handleEditClick = (list: NewList) => {
   setSelectedList(list);
   setIsEditPopupOpen(true);
 };
-// const handleEditSubmit = async (e: FormEvent<HTMLFormElement>) => {
-//   e.preventDefault();
-//   if (selectedList) {
-//     const updatedList = { ...selectedList, name: listName };
 
-//     await updateListAPI(userId, selectedList.id, listName);
-//     setLists((prevLists) =>
-//       prevLists.map((l) => (l.id === updatedList.id ? updatedList : l))
-//     );
-//   }
-//   setListName("");
-//   setIsEditPopupOpen(false);
-  
-// };
 const handleEditSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   console.log("Before updateListAPI:", userId, selectedList, name);
-  console.log("Before updateListAPI:", listName);
+  console.log("Before updateListAPI:", name);
   if (selectedList && userId !== undefined) {
-    const updatedList = { ...selectedList, name: listName };
+    const updatedList = { ...selectedList, name: name };
     console.log("Before updateListAPI call:", updatedList);
-    console.log("Before updateListAPI call list:", listName);
-    await updateListAPI(selectedList.id, listName);
+    console.log("Before updateListAPI call list:", name);
+    await updateListAPI(selectedList.id, name);
     console.log("After updateListAPI call, before setLists:", updatedList);
-    setLists((prevLists) =>
-      prevLists.map((l) => (l.id === updatedList.id ? updatedList : l))
-    );
-    console.log("After setLists:", updatedList);
-
-    setListName("");
+    setName("");
     setIsEditPopupOpen(false);
   }
   
-  
-};
-
+ };
 const closeEditPopup = () => {
   setIsEditPopupOpen(false);
 };
+
+const [selectedListForDeletion, setSelectedListForDeletion] = useState<NewList | null>(null);
+const handleDeleteClick = (list: NewList) => {
+  setSelectedListForDeletion(list);
+  setIsDeletePopupOpen(true);
+};
+const deleteListAPI = async (listId: number) => {
+  try {
+    if (!userId) {
+      console.error("User ID is undefined");
+      return;
+    }
+
+    const apiUrl = `/api/v1/list/${userId}/${listId}`;
+    console.log(apiUrl);
+
+    await axios.delete(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    
+    const updatedListsResponse = await axios.get(`/api/v1/list/all/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const updatedLists = updatedListsResponse.data;
+    setLists(updatedLists);
+  } catch (error) {
+    console.error("Error deleting list:", error);
+  }
+};
+
+const handleDeleteList = () => {
+  if (selectedListForDeletion) {
+    deleteListAPI(selectedListForDeletion.id).then(() => {
+      setLists((prevLists) => prevLists.filter((l) => l.id !== selectedListForDeletion.id));
+      setIsDeletePopupOpen(false);
+    });
+  }
+};
+
+const closeDeletePopup = () => {
+  setIsDeletePopupOpen(false);
+};
+
 
   return (
     <>
       <div className={styles.listContainer}>
         <div className={styles.listContent}>
           <header>
-            <div className="listName">
+            <div className="name">
               <h3>My list</h3>
             </div>
           </header>
@@ -208,7 +249,7 @@ const closeEditPopup = () => {
                   </span>
                 </Link>
                 <div className={styles.HoverMore}>
-                  <ListOnHover onEdit={() => handleEditClick(list)}  />
+                  <ListOnHover onEdit={() => handleEditClick(list)} onDelete={() => handleDeleteClick(list)}  />
                 </div>
                 </div>
                 
@@ -227,9 +268,16 @@ const closeEditPopup = () => {
         isOpen={isEditPopupOpen}
         onClose={closeEditPopup}
         list={selectedList}
-        onSubmit={handleEditSubmit}
+        updateListAPI={updateListAPI}
         />
-        
+        <DeleteListPopup
+          isOpen={isDeletePopupOpen}
+          onClose={closeDeletePopup}
+          onDeleteList={handleDeleteList}
+          deleteListAPI={deleteListAPI}
+          listId={selectedListForDeletion?.id || 0}
+          listName={selectedListForDeletion?.name || ""}
+        />
       </div>
     </>
   );

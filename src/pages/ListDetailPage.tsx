@@ -334,11 +334,12 @@ function ListDetailPage() {
           onClose={closeDeleteListPopup}
           onDeleteList={handleDeleteList}
         />
-        <EditListPopup
+        {/* <EditListPopup
           isOpen={isEditPopupOpen}
           onClose={closeEditPopup}
           onSubmit={handleEditListPopup}
-        />
+
+        /> */}
         
       </div>
     </>

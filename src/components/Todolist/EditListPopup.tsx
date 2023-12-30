@@ -16,8 +16,8 @@ import React, {
  interface EditPopupProps {
    isOpen: boolean;
    onClose: () => void;
-   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  list: NewList | null;
+   updateListAPI: (listId:number , name: string) => Promise<void>;
+   list: NewList | null;
  }
  interface NewList {
    id: number;
@@ -25,8 +25,8 @@ import React, {
  }
 
  
- export const Popup: React.FC<EditPopupProps> = (
-   { isOpen, onClose, list,onSubmit  },
+ export const EditListPopup: React.FC<EditPopupProps> = (
+   { isOpen, onClose, list,updateListAPI  },
    props
  ) => {
    const [listName, setListName] = useState("");
@@ -46,6 +46,16 @@ import React, {
       setListName(list.name);
     }
   }, [list]);
+  const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
+ 
+    try {
+      await updateListAPI( list?.id || 0,listName);
+      setListName("");
+      onClose();
+    } catch (error) {
+      console.error("Error creating list:", error);
+    }
+  };
   
    return (
      <>
@@ -56,7 +66,7 @@ import React, {
          aria-describedby="dialog-description"
        >
          <DialogTitle id="dialog-title">Edit List</DialogTitle>
-         <form onSubmit={(e) => onSubmit(e)}>
+         <form onSubmit={handleSubmit}>
            <input
              placeholder="Edit List"
              type="text"
@@ -114,5 +124,5 @@ import React, {
    );
  };
  
- export default Popup;
+ export default EditListPopup;
  
