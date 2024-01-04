@@ -32,12 +32,12 @@ export const SidebarData = [
     icon: <CgIcons.CgCalendarDates />,
     cName: "nav-text",
   },
-  {
-    title: "Completed",
-    path: "/Completed",
-    icon: <FaIcons.FaCheckCircle />,
-    cName: "nav-text",
-  },
+  // {
+  //   title: "Completed",
+  //   path: "/Completed",
+  //   icon: <FaIcons.FaCheckCircle />,
+  //   cName: "nav-text",
+  // },
   {
     title: "Archived",
     path: "/Archived",

@@ -166,7 +166,6 @@ function CustomDatePicker({ setTask }: any) {
                   }));
                 }}
                 inline
-                dateFormat="yyyy-MM-dd"
               />
             </div>
           )}

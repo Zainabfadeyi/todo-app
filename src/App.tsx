@@ -22,7 +22,10 @@ const App: React.FC = () => {
     <Router>
       <div className="app-container">
         <Routes>
-          <Route path="/" element={<LayoutHome />} />
+          <Route path="/" element={<LayoutHome />} >
+          <Route path="/" element={<Home/>} />
+            </Route>
+
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           

@@ -2,23 +2,25 @@ import React, { useState, FormEvent } from "react";
 import { Button, Dialog, DialogTitle, DialogContentText, DialogActions } from "@mui/material";
 
 
+
 interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
-  onDeleteList: () => void;
-  deleteListAPI: (listId: number|undefined) => Promise<void>;
-  listId: number| undefined;
-  listName: string;
+  onDeleteTask: () => void;
+  deleteTaskAPI: (listId: number|undefined) => Promise<void>;
+  taskId: number| undefined;
+  taskName: string;
 
 }
 
-export const DeleteListPopup: React.FC<PopupProps> = ({
+export const DeleteTaskPopup
+: React.FC<PopupProps> = ({
   isOpen,
   onClose,
-  onDeleteList,
-  deleteListAPI,
-  listId,
-  listName
+  onDeleteTask,
+  deleteTaskAPI,
+  taskId,
+  taskName
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -27,8 +29,8 @@ export const DeleteListPopup: React.FC<PopupProps> = ({
     
     try {
       setIsDeleting(true); 
-      await deleteListAPI(listId);
-      onDeleteList(); 
+      await deleteTaskAPI(taskId);
+      onDeleteTask(); 
       onClose();
     } catch (error) {
       console.error("Error deleting list:", error);
@@ -54,7 +56,7 @@ export const DeleteListPopup: React.FC<PopupProps> = ({
             width={"500px"}
             style={{ fontSize: "18px", padding: "10px", marginLeft: "10px" }}
           >
-            Are you sure you want to delete {(listName) || "this List"}
+            Are you sure you want to delete {(taskName) || "this List"}
           </DialogContentText>
           <DialogActions>
             <Button
@@ -92,4 +94,5 @@ export const DeleteListPopup: React.FC<PopupProps> = ({
   );
 };
 
-export default DeleteListPopup;
+export default DeleteTaskPopup
+;

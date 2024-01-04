@@ -73,7 +73,6 @@ const Register: React.FC = () => {
             setErrMsg("Invalid Entry");
             return;
         }
-        console.log(JSON.stringify({ firstName, lastName, email, password: pwd, role }));
 
         try {
             const response = await axios.post(REGISTER_URL,
@@ -84,8 +83,6 @@ const Register: React.FC = () => {
                     withCredentials: true
                 }
             );
-            console.log(response);
-            console.log(response?.data);
             setSuccess(true);
 
             setFirstName('');

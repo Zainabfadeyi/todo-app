@@ -17,7 +17,7 @@ import React, {
    isOpen: boolean;
    onClose: () => void;
    updateListAPI: (listId:number , name: string) => Promise<void>;
-   list: NewList | null;
+   list: NewList | null ;
  }
  interface NewList {
    id: number;
@@ -47,6 +47,7 @@ import React, {
     }
   }, [list]);
   const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
  
     try {
       await updateListAPI( list?.id || 0,listName);

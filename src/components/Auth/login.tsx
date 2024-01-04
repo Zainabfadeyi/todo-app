@@ -34,7 +34,6 @@ const Login: React.FC = () => {
 
 
 useEffect(() => {
-  console.log('Current Authentication State:', isAuthenticated);
 }, [isAuthenticated]);
 
   useEffect(() => {
@@ -67,7 +66,6 @@ useEffect(() => {
           dispatch(login({...userDetails,accessToken}));
           dispatch(setUser(userDetails));
     } catch (err  : any) {
-      console.log(err, "==errr==")
         if (!err?.response) {
             setErrMsg('No Server Response');
         } else if (err.response?.status === 400) {

@@ -12,6 +12,7 @@
    display: inline-flex;
    align-items: center;
    justify-content: center;
+   margin-top: 5px;
 }
 .dropdownmore {
    width: 150px;
@@ -22,7 +23,7 @@
    right: 0;
    background-color: #fff;
    overflow: hidden;
-  
+  z-index: 999;
 }
 .itemDropdownmore {
    background: #fff;

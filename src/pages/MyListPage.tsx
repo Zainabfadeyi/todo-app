@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ListOnHover from "../components/Todolist/ListOnHover";
 
 
+
 interface NewList {
   id: number;
   name: string;
@@ -82,7 +83,17 @@ function MyListPage() {
       
       setLists((prevLists) => [...prevLists, newList]);
       
+      // navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
       navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
+
+    const listDetailsResponse = await axios.get(`/api/v1/list/${userId}/${newList.id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+
+    const listDetails = listDetailsResponse.data;
     } catch (error) {
       console.error("Error creating list:", error);
     }
@@ -105,6 +116,7 @@ function MyListPage() {
 
         const fetchedLists = response.data;
         setLists(fetchedLists);
+        
       } catch (error) {
         console.error("Error fetching lists:", error);
       }
@@ -120,7 +132,6 @@ function MyListPage() {
         return;
       }
       const apiUrl = `/api/v1/list/${userId}/${listId}`;
-      console.log(apiUrl)
       await axios.put(
         apiUrl,
         {id:listId, name: listName },
@@ -150,21 +161,7 @@ const handleEditClick = (list: NewList) => {
   setIsEditPopupOpen(true);
 };
 
-const handleEditSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  console.log("Before updateListAPI:", userId, selectedList, name);
-  console.log("Before updateListAPI:", name);
-  if (selectedList && userId !== undefined) {
-    const updatedList = { ...selectedList, name: name };
-    console.log("Before updateListAPI call:", updatedList);
-    console.log("Before updateListAPI call list:", name);
-    await updateListAPI(selectedList.id, name);
-    console.log("After updateListAPI call, before setLists:", updatedList);
-    setName("");
-    setIsEditPopupOpen(false);
-  }
-  
- };
+
 const closeEditPopup = () => {
   setIsEditPopupOpen(false);
 };
@@ -174,7 +171,7 @@ const handleDeleteClick = (list: NewList) => {
   setSelectedListForDeletion(list);
   setIsDeletePopupOpen(true);
 };
-const deleteListAPI = async (listId: number) => {
+const deleteListAPI = async (listId: number|undefined) => {
   try {
     if (!userId) {
       console.error("User ID is undefined");
@@ -182,10 +179,9 @@ const deleteListAPI = async (listId: number) => {
     }
 
     const apiUrl = `/api/v1/list/${userId}/${listId}`;
-    console.log(apiUrl);
 
     await axios.delete(apiUrl, {
-      headers: {
+      headers: { 
         Authorization: `Bearer ${accessToken}`,
       },
     });
