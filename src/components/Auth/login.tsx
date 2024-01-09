@@ -6,7 +6,6 @@ import React, {
   FormEvent,
 } from "react";
 import "../../styles/RegStyle.css";
-// import AuthContext from "./context/AuthProvider";
 import axios from '../../api/axios';
 import {Link} from "react-router-dom"
 import { FaFingerprint } from "react-icons/fa";
@@ -17,7 +16,6 @@ import { login } from '../../app/slices/authSlice';
 const LOGIN_URL = "/api/v1/auth/login";
 
 const Login: React.FC = () => {
-  // const { setAuth } = useContext(AuthContext);
   const userRef = useRef<HTMLInputElement>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
 
@@ -39,6 +37,7 @@ useEffect(() => {
   useEffect(() => {
     setErrMsg("");
   }, [email, pwd]);
+  const [customMessage, setCustomMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,6 +56,9 @@ useEffect(() => {
           setEmail("");
           setPwd("");
           setSuccess(true);
+          setCustomMessage('Login successful!, You are logged in. Redirecting...');
+      setTimeout(() => {
+        window.location.href = '/List';}, 2000)
          
           const userDetailsResponse = await axios.get('/api/v1/user/details', {
             headers: { Authorization: `Bearer ${response?.data?.accessToken}` },
@@ -84,13 +86,9 @@ useEffect(() => {
     < >
     
       <div className="Login">
-
-        {success ? (
-          <section className="suggest">
-            <h1>You are logged in!</h1>
-            <span className="line">
-              <a href="./dashboard">Go to Dashboard</a>
-            </span>
+        {customMessage ? (
+          <section className="sectionReg">
+            <h1>{customMessage}</h1>
           </section>
         ) : (
           <div className="RegContainer">

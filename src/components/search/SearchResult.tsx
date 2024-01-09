@@ -1,17 +1,69 @@
-import React from "react";
+
+import React, { useState } from "react";
 import "./SearchResult.css";
 
+import { Task } from "../../api/createTaskApi";
+import { useApiService } from '../../api/apiService';
+import { useParams } from "react-router-dom";
+import { taskId } from "../../api/apiService";
 interface SearchResultProps {
-  result: string;
+  result:string
+  task?:Task
+  taskId:number|undefined
+  onResultClick:(taskId: number | undefined) => Promise<void>;
 }
 
-export const SearchResult: React.FC<SearchResultProps> = ({ result }) => {
+interface Params {
+  id?: string;
+  [key: string]: string | undefined;
+  name?: string;
+}
+
+export const SearchResult: React.FC<SearchResultProps> = ({ taskId, result, task,onResultClick }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const { getTaskDetailsAPI, updateTaskAPI } = useApiService();
+  const { id, name: TaskName } = useParams<Params>();
+  const parseListId = id ? parseInt(id, 10) : undefined;
+  const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>(
+      
+    )
+
+  const handleResultClick = async (taskId:number|undefined) => {
+    // try {
+      
+    //   console.log(taskId)
+    //   if (taskId && parseListId) {
+    //     const response = await getTaskDetailsAPI(taskId);
+        
+    //   }
+    // } catch (error) {
+    //   console.error("Error fetching task details:", error);
+    // }
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+      
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+    setShowModal(true);
+    onResultClick(taskId)
+  };
+
   return (
-    <div
-      className="search-result"
-      onClick={(e) => alert(`You selected ${result}!`)}
-    >
-      {result}
+    <div>
+      <div
+        className="search-result"
+        onClick={()=> handleResultClick(taskId)}
+      >
+        {result}
+      </div>
+  
     </div>
   );
 };
+
+

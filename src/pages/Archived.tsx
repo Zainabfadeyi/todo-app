@@ -2,50 +2,45 @@ import React, {useState, useRef, useEffect, ChangeEvent} from 'react'
 import  styles from "../styles/today.module.css"
 import { MdCheck, MdSort } from "react-icons/md";
 import { IoIosCheckmark, IoIosSearch, IoMdMore } from "react-icons/io";
+import ArchiveOnHover from "../components/Task/ArchiveOnHover";
 import { Task } from '../api/createTaskApi';
 import { useFilterService } from '../api/apiFilterService';
-import {sortFilterTaskService} from "../api/sortFilterService"
-import { RootState } from "../app/store";
-import {  useSelector } from "react-redux";
-import FilterOnHover from '../components/Task/FilterOnHover';
 import { useApiService } from '../api/apiService';
 import DeleteTaskPopup from '../components/Task/DeleteTaskPopup';
+import { RootState } from "../app/store";
+import {  useSelector } from "react-redux";
+import { sortArchiveFilterService } from '../api/sortFilterService';
 
-type SortType = "id" | "priority" | "title";
+type SortType = "id"| "dueDate" | "priority" | "title";
 
-const Today: React.FC<{ tasks: Task[] }> = () => { 
-  const [isVisible, setIsVisible] = useState(true);
+const Archived: React.FC<{ tasks: Task[] }> = () => { 
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
-  const [contentAdded, setContentAdded] = useState(false);
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
   const [isDeleteTaskPopupOpen, setIsDeleteTaskPopupOpen] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [todayTasks, setTodayTasks] = useState<Task[]>([])
+  const [ArchivedTasks, setArchivedTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true);
-  const { archiveTaskAPI,deleteTaskByIdAPI } = useApiService();
+  const { unArchiveTaskAPI,deleteTaskByIdAPI } = useApiService();
 
-  const closeDeleteTaskPopup=()=>{
-    setIsDeleteTaskPopupOpen(false)
-  }
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
-  const handleSortChange = (selectedSort: SortType) => {
-    setSort(selectedSort);
+  const handleSortChange = (selectedArSort: SortType) => {
+    setSort(selectedArSort);
     setShowSort(false);
-    localStorage.setItem('sort', selectedSort);
+    localStorage.setItem('Archivesort', selectedArSort);
   };
 
   
     const fetchSortTasks = async () => {
       try {
-        const sortedTasks = await sortFilterTaskService(accessToken,sort);
-        setTodayTasks(sortedTasks);
-        console.log(sortedTasks)
+        const sortedTasks = await sortArchiveFilterService(accessToken,sort);
+        setArchivedTasks(sortedTasks);
       } catch (error) {
         console.error('Error fetching sorted tasks:', error);
       }
@@ -53,17 +48,19 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
 
 
   useEffect(() => {
-    const savedSort = localStorage.getItem('sort');
-    if (savedSort) {
-      setSort(savedSort as SortType);
+    const ArchiveSort = localStorage.getItem('Archivesort');
+    if (ArchiveSort) {
+      setSort(ArchiveSort as SortType);
     }
     if (accessToken && sort){
       fetchSortTasks();
     }
     
-  }, [ sort])
+  }, [])
 
-
+  const closeDeleteTaskPopup=()=>{
+    setIsDeleteTaskPopupOpen(false)
+  }
 
   const sortDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,11 +82,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
   }, []);
   const onHoverSort = () => setHoverSort(true);
   const onLeaveSort = () => setHoverSort(false);
-  const addContent = () => {
-    // Add your logic here to add content
-    // For now, let's just set contentAdded to true
-    setContentAdded(true);
-  };
+
   const handleChange = (field: keyof Task, value: string) => {
     setEditingTask((prevTask) => ({
       ...(prevTask as Task), // Cast prevTask to Task
@@ -104,8 +97,6 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
     }));
   };
 
-
-  
   const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleChange('dueTime', e.target.value);
   };
@@ -117,35 +108,33 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
     setIsDeleteTaskPopupOpen(true);
     setEditingTask(task);
   };
-  const handleTaskEditClick = (task: Task) => {
-    setShowModal(true)
-    setEditingTask(task)
-    
-  };
-  const { filterTodayTasksAPI } = useFilterService();
+
+
+  const { filterArchivedTasksAPI } = useFilterService();
 
   useEffect(() => {
-    const fetchTodayTasks = async () => {
+    const fetchArchivedTasks = async () => {
       try {
-        const fetchedTasks = await filterTodayTasksAPI();
-        setTodayTasks(fetchedTasks);
+        const fetchedTasks = await filterArchivedTasksAPI();
+        setArchivedTasks(fetchedTasks);
         setLoading(false); 
+        
       } catch (error) {
-        console.error('Error fetching today tasks:', error);
-        fetchTodayTasks();
+        console.error('Error fetching Archived tasks:', error);
+        fetchArchivedTasks();
       }
     };
 
-    fetchTodayTasks();
-  }, [filterTodayTasksAPI,fetchSortTasks]);
+    fetchArchivedTasks();
+  }, [filterArchivedTasksAPI]);
 
   if (loading) {
     return <p>Loading...</p>; // You can show a loading indicator here
   }
-  
-  const handleArchivedTask = (task:Task) => {
+
+  const handleUnArchivedTask = (task:Task) => {
     if (editingTask && editingTask.id) {
-      archiveTaskAPI(editingTask.id)
+      unArchiveTaskAPI(editingTask.id)
         .then(() => {
           setTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
         })
@@ -174,7 +163,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3>Today</h3>
+            <h3>Archived</h3>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -195,29 +184,35 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
                   </button>
                   {showSort ? (
                     <div className={styles.dropdown}>
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("id")}
-                      >
-                        <p>None(Default)</p>
-                        {sort === "id" && <MdCheck />}
-                      </div>
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("title")}
-                      >
-                        <p>Title</p>
-                        {sort === "title" && <MdCheck />}
-                      </div>
-                     
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("priority")}
-                      >
-                        <p>Priority</p>
-                        {sort === "priority" && <MdCheck />}
-                      </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("id")}
+                    >
+                      <p>None(Default)</p>
+                      {sort === "id" && <MdCheck />}
                     </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("title")}
+                    >
+                      <p>Title</p>
+                      {sort === "title" && <MdCheck />}
+                    </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("dueDate")}
+                    >
+                      <p>Due date</p>
+                      {sort === "dueDate" && <MdCheck />}
+                    </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("priority")}
+                    >
+                      <p>Priority</p>
+                      {sort === "priority" && <MdCheck />}
+                    </div>
+                  </div>
                   ) : null}
                 </div>
             </div>
@@ -225,10 +220,10 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
           </header>
         </div>
         <hr />
-        {todayTasks.length > 0 ? (
+        {ArchivedTasks.length > 0 ? (
           <div className={styles.text}>
             <div style={{ textAlign: "left" }} className={styles.taskText}>
-            {todayTasks.map((task, index) => (
+            {ArchivedTasks.map((task, index) => (
               <>
               <div key={index} className={styles.properties}>
                 <button
@@ -252,23 +247,24 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
-                  <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)}/>
+                  <ArchiveOnHover onTaskDelete={() => handleTaskDeleteClick(task)} onTaskUnArchived={() => handleUnArchivedTask(task)}/>
                 </div>
               </div>
               </>
             ))}
           </div>
+     
         </div>
         ):(
         <div className={styles.image}>
           <div>
-            <img src="\public\images\image-1.jpg" className={styles.defaultImage} />
+            <img src="\public\images\image-2.jpg" className={styles.defaultImage} />
           </div>
           <div className={styles.text}>
-            What do you need to get done today?
+            Tasks you dont want to see anymore in your list?
             </div>
             <div className={styles.textII}>
-            By default, tasks added here will be due today. Click + to add a task
+            Archive tasks are here!!!
             </div>
         </div>
         )}
@@ -288,4 +284,4 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
   );
 }
 
-export default Today
+export default Archived

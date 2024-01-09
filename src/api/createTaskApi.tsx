@@ -11,7 +11,9 @@ export interface Task {
   dueTime: string;
   reminder: string;
   completed:boolean;
+  archived?:boolean
 }
+
 
 
 
@@ -36,8 +38,8 @@ export interface TaskResponse {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-  
-      const createdTask: Task = response.data; // Assuming the server returns the created task
+      const createdTask: Task = response.data;
+      
   
       return { createdTask, apiResponse: response.data };
     } catch (error) {
@@ -58,7 +60,7 @@ export const fetchTasksApi = async (listId: number | undefined, accessToken: str
         },
       });  
 
-      return response.data; // Assuming the server returns the list of tasks
+      return response.data; 
     } catch (error) {
       throw new Error(`Error fetching tasks: ${error}`);
     }

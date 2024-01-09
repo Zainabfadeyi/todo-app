@@ -20,6 +20,8 @@
     "axios": "^1.6.2",
     "date-fns": "^3.0.6",
     "js-cookie": "^3.0.5",
+    "luxon": "^3.4.4",
+    "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-calendar": "^4.7.0",
     "react-datepicker": "^4.25.0",
@@ -31,6 +33,7 @@
     "rsuite": "^5.46.1"
   },
   "devDependencies": {
+    "@types/luxon": "^3.4.0",
     "@types/react": "^18.0.27",
     "@types/react-datepicker": "^4.19.4",
     "@types/react-dom": "^18.0.10",

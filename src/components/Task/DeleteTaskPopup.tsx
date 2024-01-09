@@ -29,7 +29,6 @@ export const DeleteTaskPopup
     
     try {
       setIsDeleting(true); 
-      await deleteTaskAPI(taskId);
       onDeleteTask(); 
       onClose();
     } catch (error) {

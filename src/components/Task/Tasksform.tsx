@@ -7,7 +7,7 @@ import { MdInbox, MdExpandMore  } from "react-icons/md";
 interface TaskFormProps {
   onSubmit:(task: Task, listId: number | undefined) => void
   onCancel: () => void;
-  listId:number|undefined
+  listId?:number|undefined
   handleChange: (field: keyof Task, value: string) => void;
   handleCustomDateChange: (value: string) => void;
   handleTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -23,6 +23,7 @@ interface Task {
   dueTime: string;
   reminder: string;
   completed:boolean;
+  
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
@@ -47,6 +48,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
     dueTime: '',
     reminder: '',
     completed:false
+    
   });
 
   const handleChange = (field: keyof Task, value: string) => {
@@ -119,6 +121,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
     } finally {
       setIsSubmitting(false);
     }
+    
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -200,7 +203,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
             </div>
         </div>
         <div className={styles.footer}>
-          <div className={styles.Listform}>
+          {/* <div className={styles.Listform}>
             <div className={styles.inboxWrapper}>
           
           <button type="button" className={styles.inboxButton}>
@@ -216,13 +219,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
             </button>
             
             </div>
-          </div>
+          </div> */}
           <div className={styles.TaskButtonform}>
             <button type="button" onClick={() => onCancel()}
             className={styles.controlBtnClose}>
               Cancel
             </button>
-            <button type="submit" className={styles.controlBtn}>
+            <button type="submit" className={styles.controlBtn} >
               Add Task
               </button>
           </div>

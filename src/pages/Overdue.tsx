@@ -4,66 +4,63 @@ import { MdCheck, MdSort } from "react-icons/md";
 import { IoIosCheckmark, IoIosSearch, IoMdMore } from "react-icons/io";
 import { Task } from '../api/createTaskApi';
 import { useFilterService } from '../api/apiFilterService';
-import {sortFilterTaskService} from "../api/sortFilterService"
 import { RootState } from "../app/store";
 import {  useSelector } from "react-redux";
+import {sortFilterOverdueService} from "../api/sortFilterService"
+import { useApiService } from '.././api/apiService';
 import FilterOnHover from '../components/Task/FilterOnHover';
-import { useApiService } from '../api/apiService';
 import DeleteTaskPopup from '../components/Task/DeleteTaskPopup';
 
-type SortType = "id" | "priority" | "title";
 
-const Today: React.FC<{ tasks: Task[] }> = () => { 
-  const [isVisible, setIsVisible] = useState(true);
+type SortType = "id"| "dueDate" | "priority" | "title";
+
+const Overdue: React.FC<{ tasks: Task[] }> = () => { 
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
-  const [contentAdded, setContentAdded] = useState(false);
+  const { archiveTaskAPI,deleteTaskByIdAPI } = useApiService();
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDeleteTaskPopupOpen, setIsDeleteTaskPopupOpen] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [todayTasks, setTodayTasks] = useState<Task[]>([])
+  const [overdueTasks, setOverdueTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true);
-  const { archiveTaskAPI,deleteTaskByIdAPI } = useApiService();
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const closeDeleteTaskPopup=()=>{
     setIsDeleteTaskPopupOpen(false)
   }
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleSortChange = (selectedSort: SortType) => {
     setSort(selectedSort);
     setShowSort(false);
-    localStorage.setItem('sort', selectedSort);
+    localStorage.setItem('Overduesort', selectedSort);
+  };
+
+  const fetchOverdueSortTasks = async () => {
+    try {
+      const sortedTasks = await sortFilterOverdueService(accessToken,sort);
+      console.log('Sorted Overdue Tasks:', sortedTasks);
+      setOverdueTasks(sortedTasks);
+    } catch (error) {
+      console.error('Error fetching sorted tasks:', error);
+    }
   };
 
   
-    const fetchSortTasks = async () => {
-      try {
-        const sortedTasks = await sortFilterTaskService(accessToken,sort);
-        setTodayTasks(sortedTasks);
-        console.log(sortedTasks)
-      } catch (error) {
-        console.error('Error fetching sorted tasks:', error);
-      }
-    };
 
-
-  useEffect(() => {
-    const savedSort = localStorage.getItem('sort');
-    if (savedSort) {
-      setSort(savedSort as SortType);
+useEffect(() => {
+  const saveOverdueSort = localStorage.getItem('Overduesort');
+    if (saveOverdueSort) {
+      setSort(saveOverdueSort as SortType);
     }
-    if (accessToken && sort){
-      fetchSortTasks();
-    }
-    
-  }, [ sort])
-
-
+ 
+  if (accessToken && sort){
+    fetchOverdueSortTasks();
+  }
+  
+}, [ sort])
 
   const sortDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,64 +82,32 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
   }, []);
   const onHoverSort = () => setHoverSort(true);
   const onLeaveSort = () => setHoverSort(false);
-  const addContent = () => {
-    // Add your logic here to add content
-    // For now, let's just set contentAdded to true
-    setContentAdded(true);
-  };
-  const handleChange = (field: keyof Task, value: string) => {
-    setEditingTask((prevTask) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
-      [field]: value,
-    }));
-  };
 
-  const handleCustomDateChange = (value: string) => {
-    setEditingTask((prevTask: Task | null) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
-      dueDate: value,
-    }));
-  };
-
-
-  
-  const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange('dueTime', e.target.value);
-  };
-
-  const handleReminderChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange('reminder', e.target.value);
-  };
   const handleTaskDeleteClick = (task: Task) => {
     setIsDeleteTaskPopupOpen(true);
     setEditingTask(task);
   };
-  const handleTaskEditClick = (task: Task) => {
-    setShowModal(true)
-    setEditingTask(task)
-    
-  };
-  const { filterTodayTasksAPI } = useFilterService();
+  const { filterOverdueTasksAPI } = useFilterService();
 
-  useEffect(() => {
-    const fetchTodayTasks = async () => {
+
+useEffect(() => {
+    const fetchOverdueTasks = async () => {
       try {
-        const fetchedTasks = await filterTodayTasksAPI();
-        setTodayTasks(fetchedTasks);
-        setLoading(false); 
+        const fetchedOverdueTasks = await filterOverdueTasksAPI();
+        setOverdueTasks(fetchedOverdueTasks);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching today tasks:', error);
-        fetchTodayTasks();
+        console.error('Error fetching overdue tasks:', error);
       }
     };
 
-    fetchTodayTasks();
-  }, [filterTodayTasksAPI,fetchSortTasks]);
+    fetchOverdueTasks();
+  }, [filterOverdueTasksAPI,overdueTasks]);
 
   if (loading) {
     return <p>Loading...</p>; // You can show a loading indicator here
   }
-  
+
   const handleArchivedTask = (task:Task) => {
     if (editingTask && editingTask.id) {
       archiveTaskAPI(editingTask.id)
@@ -167,6 +132,8 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
         });
     }
   };
+
+
   return (
     <>
     <div  className={styles.container}>
@@ -174,7 +141,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3>Today</h3>
+            <h3 style={{color:"red"}}>Overdue</h3>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -195,29 +162,35 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
                   </button>
                   {showSort ? (
                     <div className={styles.dropdown}>
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("id")}
-                      >
-                        <p>None(Default)</p>
-                        {sort === "id" && <MdCheck />}
-                      </div>
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("title")}
-                      >
-                        <p>Title</p>
-                        {sort === "title" && <MdCheck />}
-                      </div>
-                     
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("priority")}
-                      >
-                        <p>Priority</p>
-                        {sort === "priority" && <MdCheck />}
-                      </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("id")}
+                    >
+                      <p>None(Default)</p>
+                      {sort === "id" && <MdCheck />}
                     </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("title")}
+                    >
+                      <p>Title</p>
+                      {sort === "title" && <MdCheck />}
+                    </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("dueDate")}
+                    >
+                      <p>Due date</p>
+                      {sort === "dueDate" && <MdCheck />}
+                    </div>
+                    <div
+                      className={styles.itemDropdown}
+                      onClick={() => handleSortChange("priority")}
+                    >
+                      <p>Priority</p>
+                      {sort === "priority" && <MdCheck />}
+                    </div>
+                  </div>
                   ) : null}
                 </div>
             </div>
@@ -225,10 +198,10 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
           </header>
         </div>
         <hr />
-        {todayTasks.length > 0 ? (
+        {overdueTasks.length > 0 ? (
           <div className={styles.text}>
             <div style={{ textAlign: "left" }} className={styles.taskText}>
-            {todayTasks.map((task, index) => (
+            {overdueTasks.map((task, index) => (
               <>
               <div key={index} className={styles.properties}>
                 <button
@@ -255,6 +228,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
                   <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)}/>
                 </div>
               </div>
+              
               </>
             ))}
           </div>
@@ -265,14 +239,15 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
             <img src="\public\images\image-1.jpg" className={styles.defaultImage} />
           </div>
           <div className={styles.text}>
-            What do you need to get done today?
+            This is where you Overdue Tasks lies.
             </div>
             <div className={styles.textII}>
-            By default, tasks added here will be due today. Click + to add a task
+            By default, Overdue taks would be added here.
             </div>
         </div>
         )}
       </div>
+
       <DeleteTaskPopup
         isOpen={isDeleteTaskPopupOpen}
         onClose={closeDeleteTaskPopup}
@@ -288,4 +263,5 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
   );
 }
 
-export default Today
+
+export default Overdue

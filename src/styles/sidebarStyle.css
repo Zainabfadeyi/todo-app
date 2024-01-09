@@ -101,4 +101,21 @@
     margin-right: 10px;
 
 }
+.logout{
+    display: flex;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 250px;
+    align-items: center;
+    justify-content: center;
 
+}
+.logout-button{
+    display: flex;
+    background-color: #FAF8F7;
+    border-radius: none;
+    border: none;
+    font-size: 17px;
+    color: red;
+    cursor: pointer;
+}

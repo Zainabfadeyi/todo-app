@@ -12,7 +12,7 @@
 .modalCloser {
    height: 100%;
    width: 100%;
-   background-color: rgba(0, 0, 0, 0.4);
+   background-color: rgba(0, 0, 0, 0.1);
    position: absolute;
    left: 0;
    top: 0;
@@ -146,12 +146,32 @@
    margin-top: 0;
    margin-bottom: 4px;
 }
-.select {
-   padding: 6px 15px;
-   min-width: 100%;
-   border: 1px solid #ccc;
-   border-radius: 5px;
-   color: #333;
-   outline: none;
-   margin-bottom: 20px;
+.select  {
+   padding: 6px 15px !important;
+   min-width: 100% !important;
+   border: 1px solid #ccc !important;
+   border-radius: 5px !important;
+   color: #333 !important;
+   outline: none !important;
+   margin-bottom: 20px !important;
 }
+
+
+.propertiesButton {
+   min-width: 18px;
+   min-height: 18px;
+   height: 18px;
+   width: 18px;
+   border-radius: 50%;
+   padding: 0;
+   border: 1px solid #444;
+   background: #fff;
+   margin-top: 0;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+}
+.completedTask {
+   text-decoration: line-through;
+ }

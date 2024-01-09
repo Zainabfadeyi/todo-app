@@ -83,7 +83,6 @@ function MyListPage() {
       
       setLists((prevLists) => [...prevLists, newList]);
       
-      // navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
       navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
 
     const listDetailsResponse = await axios.get(`/api/v1/list/${userId}/${newList.id}`, {

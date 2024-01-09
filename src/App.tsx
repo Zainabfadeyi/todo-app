@@ -14,9 +14,13 @@ import Home from "./components/pages/HomePage/Home";
 import PrivateRoute from "./components/Auth/PrivateRoute";
 import { useSelector } from 'react-redux';
 import { RootState } from './app/store';
+import UserProfilePage from "./pages/UserProfilePage";
+import Overdue from "./pages/Overdue";
+import Upcoming from "./pages/Upcoming";
+import Archived from "./pages/Archived";
 
 const App: React.FC = () => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
 
   return (
     <Router>
@@ -58,8 +62,12 @@ const App: React.FC = () => {
           <Route path="/" element={<Layout />}>
             <Route path="inbox" element={<Inbox />} />
             <Route path="today" element={<Today />} />
+            <Route path="overdue" element={<Overdue />} />
+            <Route path="upcoming" element={<Upcoming />} />
+            <Route path="archived" element={<Archived />} />
             <Route path="list" element={<MyListPage />} />
             <Route path="list/:id/:name" element={<ListDetailPage />} />
+            <Route path ="userprofile" element={<UserProfilePage/>}/>
           </Route>
         </Routes>
       </div>

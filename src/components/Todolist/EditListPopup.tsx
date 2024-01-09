@@ -5,6 +5,7 @@ import React, {
    useRef,
    FormEvent,
  } from "react";
+ import { useNavigate } from "react-router-dom";
  import {
    Button,
    Dialog,
@@ -39,22 +40,24 @@ import React, {
      if (inputRef.current) {
        inputRef.current.focus();
      }
-   }, []);
+   }, [isOpen]);
 
    useEffect(() => {
     if (list) {
       setListName(list.name);
     }
   }, [list]);
+  const navigate= useNavigate()
   const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
- 
     try {
-      await updateListAPI( list?.id || 0,listName);
-      setListName("");
-      onClose();
+      if (list) {
+        await updateListAPI(list.id, listName);
+        navigate(`/list/${list.id}/${encodeURIComponent(listName)}`);
+        onClose();
+      }
     } catch (error) {
-      console.error("Error creating list:", error);
+      console.error("Error updating list:", error);
     }
   };
   

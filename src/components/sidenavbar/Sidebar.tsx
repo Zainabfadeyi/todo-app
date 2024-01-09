@@ -7,8 +7,10 @@ import { Popup } from "../Todolist/Popup";
 import { useDispatch, useSelector } from "react-redux";
 import axios from '../../api/axios';
 import { RootState } from "../../app/store";
+import { IoIosLogOut } from "react-icons/io";
+import { logout } from '../../app/slices/authSlice';
+import { clearUser } from '../../app/slices/user.slice';
 
-import { Container, Sidenav } from "rsuite";
 
 interface NewList {
   id: number;
@@ -134,6 +136,14 @@ const Sidebar: React.FC= () => {
     };
   }, []);
 
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+
+    dispatch(logout());
+    dispatch(clearUser());
+
+    navigate("/login")
+  };
   return (
     <>
       <div className={`nav ${isOpen ? "" : "sidebar-closed"}`}>
@@ -202,7 +212,23 @@ const Sidebar: React.FC= () => {
               </div>
             </div>
           ))}
+        
+        {isOpen && (
+        <div className="logout" onClick={handleLogout}>
+          <div>
+            <IoIosLogOut style={{ color: "red", fontSize: "17px" }} />
+          </div>
+          <button className="logout-button" >
+            Log out
+        </button>
         </div>
+        )}
+        </div>
+        
+        <div>
+        
+        </div>
+        
       </div>
       <Popup
         isOpen={isPopupOpen}

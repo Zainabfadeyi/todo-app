@@ -5,8 +5,15 @@ import * as CgIcons from "react-icons/cg";
 import * as RiIcons from "react-icons/ri";
 import * as IoIcons from "react-icons/io";
 import { Popup } from "../Todolist/Popup";
-
+import { CgProfile } from "react-icons/cg";
+import { IoIosLogOut } from "react-icons/io";
 export const SidebarData = [
+  {
+    title: "Profile",
+    path: "/userprofile",
+    icon: <CgProfile />,
+    cName: "nav-text",
+  },
   {
     title: "Inbox",
     path: "/inbox",
@@ -56,5 +63,13 @@ export const SidebarDataList = [
 export const SidebarDataButton = [
   {
     icon: <IoIcons.IoIosAdd />,
+  },
+];
+export const SidebarLogout = [
+  {
+    title: "Log out",
+    path: "/login",
+    icon: <IoIosLogOut />,
+    cName: "nav-text logout",
   },
 ];

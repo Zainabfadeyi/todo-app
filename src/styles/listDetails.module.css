@@ -200,3 +200,15 @@ header{
  .completedTask {
    text-decoration: line-through;
  }
+
+ .searchPopup {
+   position: fixed;
+   /* top: 10%; */
+   
+   /* left: 54%; */
+   margin-left: 31%;
+   border: 1px solid #ccc;
+   /* padding: 20px; */
+   z-index: 1000;
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+ }

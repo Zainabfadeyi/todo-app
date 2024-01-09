@@ -5,14 +5,14 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 import { IoMdArchive } from "react-icons/io";
 import styles from "../../styles/TaskOnHover.module.css";
 
-interface TaskOnHoverProps {
+interface ArchivedOnHoverProps {
   onTaskEdit?: () => void;
   onTaskDelete: () => void; 
-  onTaskArchived:()=> void;
+  onTaskUnArchived:()=> void;
 }
 
 
-const TaskOnHover : React.FC<TaskOnHoverProps> = ({ onTaskDelete, onTaskEdit,onTaskArchived }) => {
+const ArchivedOnHover : React.FC<ArchivedOnHoverProps> = ({ onTaskDelete,onTaskUnArchived, onTaskEdit }) => {
    const [showMoreOptions, setShowMoreOptions] = useState(false);
    const TaskDropdownRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -45,16 +45,16 @@ const TaskOnHover : React.FC<TaskOnHoverProps> = ({ onTaskDelete, onTaskEdit,onT
       </div>
          {showMoreOptions &&(
                <div className={styles.dropdownmore}>
-                     <div className={styles.itemDropdownmore}
+                     {/* <div className={styles.itemDropdownmore}
                      onClick={onTaskEdit}>
                      <AiOutlineEdit />
                      <p>Edit</p>
-                     </div>
+                     </div> */}
                      <hr  className={styles.linebreak}/>
                      <div className={styles.itemDropdownmore}
-                     onClick={onTaskArchived}>
+                     onClick={onTaskUnArchived}>
                      <IoMdArchive />
-                     <p>Archive</p>
+                     <p>Unarchive</p>
                      </div>
                      <hr className={styles.linebreak}/>
                      <div
@@ -71,4 +71,4 @@ const TaskOnHover : React.FC<TaskOnHoverProps> = ({ onTaskDelete, onTaskEdit,onT
   )
 }
 
-export default TaskOnHover
+export default ArchivedOnHover
