@@ -10,10 +10,19 @@ import DeleteTaskPopup from '../components/Task/DeleteTaskPopup';
 import { RootState } from "../app/store";
 import {  useSelector } from "react-redux";
 import { sortArchiveFilterService } from '../api/sortFilterService';
+import { useParams } from 'react-router-dom';
+import FilterInfo from '../components/Task/FilterInfo';
+
+interface Params {
+  id?: string;
+  [key: string]: string | undefined;
+  name?: string
+}
 
 type SortType = "id"| "dueDate" | "priority" | "title";
 
-const Archived: React.FC<{ tasks: Task[] }> = () => { 
+const Archived:  React.FC = () => { 
+  const { unArchiveTaskAPI,deleteTaskByIdAPI, getTaskDetailsAPI,updateTaskByIdAPI, updateTaskCompletionAPI } = useApiService();
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
@@ -26,25 +35,30 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [ArchivedTasks, setArchivedTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true);
-  const { unArchiveTaskAPI,deleteTaskByIdAPI } = useApiService();
-
+  const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>();
+  const [updatedTaskDetails, setUpdatedTaskDetails] = useState<Task | undefined>(undefined);
+  const { id,name:TaskName } = useParams<Params>();
+  const parseListId = id ? parseInt(id, 10) : undefined;
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
 
-  const handleSortChange = (selectedArSort: SortType) => {
-    setSort(selectedArSort);
-    setShowSort(false);
-    localStorage.setItem('Archivesort', selectedArSort);
-  };
-
-  
     const fetchSortTasks = async () => {
+      console.log(sort);
       try {
-        const sortedTasks = await sortArchiveFilterService(accessToken,sort);
+        const sortedTasks = await sortArchiveFilterService(accessToken,sort, userId);
         setArchivedTasks(sortedTasks);
+        
       } catch (error) {
         console.error('Error fetching sorted tasks:', error);
       }
+
     };
+    const handleSortChange = (selectedArSort: SortType) => {
+      setSort(selectedArSort);
+      setShowSort(false);
+      localStorage.setItem('Archivesort', selectedArSort);
+    };
+
 
 
   useEffect(() => {
@@ -56,7 +70,7 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
       fetchSortTasks();
     }
     
-  }, [])
+  }, [sort])
 
   const closeDeleteTaskPopup=()=>{
     setIsDeleteTaskPopupOpen(false)
@@ -85,25 +99,11 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
 
   const handleChange = (field: keyof Task, value: string) => {
     setEditingTask((prevTask) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
+      ...(prevTask as Task), 
       [field]: value,
     }));
   };
 
-  const handleCustomDateChange = (value: string) => {
-    setEditingTask((prevTask: Task | null) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
-      dueDate: value,
-    }));
-  };
-
-  const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange('dueTime', e.target.value);
-  };
-
-  const handleReminderChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange('reminder', e.target.value);
-  };
   const handleTaskDeleteClick = (task: Task) => {
     setIsDeleteTaskPopupOpen(true);
     setEditingTask(task);
@@ -117,6 +117,7 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
       try {
         const fetchedTasks = await filterArchivedTasksAPI();
         setArchivedTasks(fetchedTasks);
+        console.log(fetchedTasks)
         setLoading(false); 
         
       } catch (error) {
@@ -126,23 +127,25 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
     };
 
     fetchArchivedTasks();
-  }, [filterArchivedTasksAPI]);
+  }, []);
 
   if (loading) {
-    return <p>Loading...</p>; // You can show a loading indicator here
+    return <p>Loading...</p>; 
   }
+ 
 
-  const handleUnArchivedTask = (task:Task) => {
-    if (editingTask && editingTask.id) {
-      unArchiveTaskAPI(editingTask.id)
-        .then(() => {
-          setTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
+  const handleUnArchivedTask = async (task:Task) => {
+    if (task && task.id) {
+      unArchiveTaskAPI(task.id)
+        .then(async () => {
+          const fetchedTasks = await filterArchivedTasksAPI();
+            setArchivedTasks(fetchedTasks);
         })
         .catch((error) => {
           console.error("Error deleting task:", error);
         });
     }
-    setEditingTask(task)
+    
   };
   const handleDeleteTask = () => {
     if (editingTask && editingTask.id) {
@@ -156,6 +159,106 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
         });
     }
   };
+
+  const handleSpecificTask = async (taskId: number|undefined) => {
+    setShowModal(true);
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+    
+      const fetchedTasks = await filterArchivedTasksAPI();
+            setArchivedTasks(fetchedTasks);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+  };
+  const handleEditTask = async(taskId: number|undefined) => {
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+      const fetchedTasks = await filterArchivedTasksAPI();
+      setArchivedTasks(fetchedTasks);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+    
+  };
+  
+ 
+ const updateTask = async () => {
+  try {
+    if (!updatedTaskDetails?.id) {
+      console.error("List ID or Task ID is undefined");
+      return;
+    }
+  
+    const updatedTaskCopy: Task = {
+      id: updatedTaskDetails.id,
+      title: updatedTaskDetails.title || "",
+      description: updatedTaskDetails.description || "",
+      dueDate: updatedTaskDetails.dueDate || "",
+      dueTime: updatedTaskDetails.dueTime || "",
+      reminder: updatedTaskDetails.reminder || "",
+      priority: updatedTaskDetails.priority || "low",
+      completed: updatedTaskDetails.completed || false,
+      archived: updatedTaskDetails.archived || false,
+    };
+
+    await updateTaskByIdAPI( updatedTaskDetails.id, updatedTaskCopy);
+
+    setArchivedTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === updatedTaskDetails.id ? updatedTaskCopy : task
+      )
+    );
+    setUpdatedTaskDetails(undefined);
+  } catch (error) {
+    console.error("Error updating task:", error);
+  }
+};
+
+if (updatedTaskDetails) {
+  updateTask();
+}
+const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
+  setUpdatedTaskDetails(updatedDetails);
+}
+
+const handleTaskCompletionToggle = async (index: number) => {
+  try {
+    const taskToUpdate = tasks[index];
+    if (!taskToUpdate || taskToUpdate.id === undefined) {
+      console.error('Task or task id is undefined');
+      return;
+    }
+
+    const updatedTasks = tasks.map((task, i) => {
+      if (i === index) {
+        task.completed = !task.completed;
+      }
+      return task;
+    });
+
+    setArchivedTasks(updatedTasks);
+
+    if (!accessToken) {
+      console.error('Access token is undefined');
+      return;
+    }
+
+    const apiResponse = await updateTaskCompletionAPI(parseListId, taskToUpdate.id, taskToUpdate.completed, accessToken);
+
+  } catch (error) {
+    console.error('Error updating task completion:', error);
+  }
+}
+  
   return (
     <>
     <div  className={styles.container}>
@@ -225,21 +328,19 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
             <div style={{ textAlign: "left" }} className={styles.taskText}>
             {ArchivedTasks.map((task, index) => (
               <>
-              <div key={index} className={styles.properties}>
-                <button
-                  onClick={() => setChecked(!checked)}
-                  className={styles.propertiesButton}
-                  style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange": task.priority=== "HIGH" ? "red": "none" }}
-                >
-                  {checked && <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority=== "HIGH" ? "red" : "none"} />}
-                </button>
-                <div className={styles.Content}>
+              <div key={task.id} className={styles.properties}>
+                 <button
+                    onClick={() => handleTaskCompletionToggle(index)}
+                    className={styles.propertiesButton}
+                    style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none" }}
+                  >
+                    {task.completed&& <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none"} />}
+                      </button>
+                      <div className={`${styles.Content} ${task.completed ? styles.completedTask : ''}`}>
+                      <div className={styles.Content}></div>
                   <div
                     className={styles.Taskprops}
-                    onClick={() => {
-                      setShowModal(true);
-                      setEditingTask(task);
-                    }}
+                    onClick={() => handleSpecificTask(task.id)}
                   >
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
@@ -247,9 +348,22 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
-                  <ArchiveOnHover onTaskDelete={() => handleTaskDeleteClick(task)} onTaskUnArchived={() => handleUnArchivedTask(task)}/>
+                  <ArchiveOnHover onTaskDelete={() => handleTaskDeleteClick(task)} onTaskUnArchived={() => handleUnArchivedTask(task)} onTaskEdit={() => handleEditTask(task.id)}/>
                 </div>
               </div>
+              {showModal && (
+                    <FilterInfo
+                      setShowModal={setShowModal}
+                      handleSpecificTask={handleSpecificTask}
+                      taskId={task.id}
+                      task={selectedTaskDetails || undefined}
+                      taskDetails={selectedTaskDetails}
+                      onUpdateTaskDetails={(updatedDetails:Task|undefined) =>
+                        setUpdatedTaskDetails(updatedDetails)
+                      }
+      
+                  />
+                )}
               </>
             ))}
           </div>
@@ -261,7 +375,7 @@ const Archived: React.FC<{ tasks: Task[] }> = () => {
             <img src="\public\images\image-2.jpg" className={styles.defaultImage} />
           </div>
           <div className={styles.text}>
-            Tasks you dont want to see anymore in your list?
+            Tasks you dont want to see anymore in your lists?
             </div>
             <div className={styles.textII}>
             Archive tasks are here!!!

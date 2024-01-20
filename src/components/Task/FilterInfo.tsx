@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/TaskInfo.module.css";
 import { IoIosCheckmark } from "react-icons/io";
@@ -5,7 +7,7 @@ import { Task } from "../../api/createTaskApi";
 import {useParams } from "react-router-dom";
 import { useApiService } from "../../api/apiService";
 
-interface TaskInfoProps {
+interface FilterInfoProps {
   setShowModal: (show: boolean) => void;
   taskId?: number|undefined;
   task?:Task|null
@@ -13,8 +15,7 @@ interface TaskInfoProps {
   handleSpecificTask: (taskId: number | undefined) => Promise<void>
   taskDetails?: Task;
   onUpdateTaskDetails:(updatedDetails: Task | undefined) => void;
-
-  
+  onUpdateTask?: (updatedDetails: Task) => void; 
   
 }
 interface Params {
@@ -23,8 +24,8 @@ interface Params {
   name?: string
 }
 
-const TaskInfo = ({ setShowModal, task, taskDetails,  onUpdateTaskDetails,}: TaskInfoProps) => {
-const {updateTaskByIdAPI,}= useApiService()
+const FilterInfo = ({ setShowModal, task, taskDetails,  onUpdateTaskDetails,onUpdateTask}: FilterInfoProps) => {
+const {updateTaskAPI,}= useApiService()
   const [showBorder, setShowBorder] = useState(false);
 
   const [selectedPriority, setSelectedPriority] = useState<string>("");
@@ -95,7 +96,7 @@ const updateTaskDueDate = async (newDueDate: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -123,7 +124,7 @@ const updateTaskDueTime = async (newDueTime: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -150,7 +151,7 @@ const updateTaskReminder = async (newReminder: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -177,7 +178,7 @@ const updateTaskPriority = async (newPriority: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
     console.log(updatedTaskDetails)
 
 
@@ -345,4 +346,4 @@ const handlePriorityChange = (
   );
 };
 
-export default TaskInfo;
+export default FilterInfo;

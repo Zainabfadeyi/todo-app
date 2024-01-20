@@ -5,7 +5,7 @@ import { Task } from "../../api/createTaskApi";
 import {useParams } from "react-router-dom";
 import { useApiService } from "../../api/apiService";
 
-interface TaskInfoProps {
+interface InboxInfoProps {
   setShowModal: (show: boolean) => void;
   taskId?: number|undefined;
   task?:Task|null
@@ -23,7 +23,7 @@ interface Params {
   name?: string
 }
 
-const TaskInfo = ({ setShowModal, task, taskDetails,  onUpdateTaskDetails,}: TaskInfoProps) => {
+const InboxInfo = ({ setShowModal, task, taskDetails,  onUpdateTaskDetails,}: InboxInfoProps) => {
 const {updateTaskByIdAPI,}= useApiService()
   const [showBorder, setShowBorder] = useState(false);
 
@@ -230,7 +230,7 @@ const handlePriorityChange = (
         <div className={styles.modal}>
           <div className={styles.heading}>
             <h4>
-              <span style={{ padding: "10px" }}>#</span>{listName}
+              <span style={{ padding: "10px" }}>#</span> Inbox
             </h4>
           </div>
 
@@ -345,4 +345,4 @@ const handlePriorityChange = (
   );
 };
 
-export default TaskInfo;
+export default InboxInfo;

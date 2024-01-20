@@ -11,9 +11,8 @@ import TaskInfo from "../components/Task/TaskInfo";
 import DeleteListPopup from "../components/Todolist/DeleteListPopup";
 import EditListPopup from "../components/Todolist/EditListPopup";
 import TaskOnHover from "../components/Task/TaskOnHover";
-import axios from '../api/axios';
 import { RootState } from "../app/store";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { createTaskApi, Task, fetchTasksApi } from '../api/createTaskApi';
 import {  useApiService } from '.././api/apiService';
 import DeleteTaskPopup from "../components/Task/DeleteTaskPopup";
@@ -97,29 +96,29 @@ const createTask = async (task: Task) => {
       return;
     }
 
-    const { createdTask} = await createTaskApi(parseListId, task, accessToken);
-    fetchAllTasks();
-
+    const { createdTask} = await createTaskApi(parseListId, task, userId, accessToken);
+   
 
     setTasks((prevTasks) => [...prevTasks, createdTask]);
     setChecked(false);
     setEditingTask(task);
     setIsPopupOpen(false)
+    setShowButtons(true)
     
   } catch (error) {
     console.error('Error creating task:', error);
   }
 };
 
-
 useEffect(() => {
   fetchAllTasks();
-}, [parseListId, createTaskApi]);
+}, []);
+
 
 const fetchAllTasks = async () => {
   try {
     if (parseListId) {
-      const fetchedTasks = await fetchTasksApi(parseListId,accessToken);
+      const fetchedTasks = await fetchTasksApi(userId,parseListId,accessToken);
       setTasks(fetchedTasks);
     }
   } catch (error) {
@@ -127,29 +126,27 @@ const fetchAllTasks = async () => {
   }
 };
 
+
   const fetchSortedTasks = async () => {
     try {
       if (parseListId && sort) {
         const sortedTasks = await getSortedTasksAPI(parseListId, sort, accessToken);
         setTasks(sortedTasks);
       }
+
     } catch (error) {
       console.error('Error fetching sorted tasks:', error);
     }
+
   };
 
 
   const handleSortChange = (selectedSort: SortType) => {
     setSort(selectedSort);
     setShowSort(false);
-    // localStorage.setItem('sort', selectedSort);
   };
   
 useEffect(() => {
-  // const savedSort = localStorage.getItem('sort');
-  // if (savedSort) {
-  //   setSort(savedSort as SortType);
-  // }
   if (parseListId && sort) {
     fetchSortedTasks();
   }
@@ -271,11 +268,7 @@ useEffect(() => {
     setIsDeleteTaskPopupOpen(true);
     setEditingTask(task);
   };
-  const handleTaskEditClick = (task: Task) => {
-    setShowModal(true)
-    setEditingTask(task)
-    
-  };
+ 
   
   const handleDeleteTask = () => {
     if (editingTask && editingTask.id) {
@@ -289,17 +282,22 @@ useEffect(() => {
         });
     }
   };
-const handleArchivedTask = (task:Task) => {
-    if (editingTask && editingTask.id) {
-      archiveTaskAPI(editingTask.id)
-        .then(() => {
-          setTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
+const handleArchivedTask = async (task:Task) => {
+    if (task && task.id) {
+    archiveTaskAPI(task.id)
+        .then(async () => {
+          const fetchedTasks = await fetchTasksApi(userId,parseListId,accessToken);
+          setTasks(fetchedTasks);
+          
         })
         .catch((error) => {
           console.error("Error deleting task:", error);
         });
+       
     }
-    setEditingTask(task)
+    
+      
+    
   };
   
  
@@ -313,14 +311,14 @@ const handleArchivedTask = (task:Task) => {
 
   const handleChange = (field: keyof Task, value: string) => {
     setEditingTask((prevTask) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
+      ...(prevTask as Task), 
       [field]: value,
     }));
   };
 
   const handleCustomDateChange = (value: string) => {
     setEditingTask((prevTask: Task | null) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
+      ...(prevTask as Task), 
       dueDate: value,
     }));
   };
@@ -357,11 +355,16 @@ const handleArchivedTask = (task:Task) => {
       }
   
       const apiResponse = await updateTaskCompletionAPI(parseListId, taskToUpdate.id, taskToUpdate.completed, accessToken);
+
+      if (parseListId) {
+        const fetchedTasks = await fetchTasksApi(userId,parseListId,accessToken);
+        setTasks(fetchedTasks);
+      }
+
     } catch (error) {
       console.error('Error updating task completion:', error);
     }
   }
-  const [isSearchBarVisible, setIsSearchBarVisible] = useState(false);
 
   const [results, setResults] =  useState<SearchResultItem[]>([]);
 
@@ -405,19 +408,80 @@ const handleArchivedTask = (task:Task) => {
     const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>(
       
     );
-    const handleSpecificTask = async (taskId: number|undefined) => {
+  const handleSpecificTask = async (taskId: number|undefined) => {
       setShowModal(true);
       try {
         console.log('Clicked on task with ID:', taskId);
         const response = await getTaskDetailsAPI(taskId);
         setSelectedTaskDetails(response);
+         onUpdateTaskDetails(response);
         const updatedTasks = tasks.map((task) => (task.id === taskId ? response : task));
-    setTasks(updatedTasks);
+        setTasks(updatedTasks);
         setShowModal(true);
       } catch (error) {
         console.error("Error fetching task details:", error);
       }
     };
+
+    const handleTaskEditClick = async(taskId: number|undefined) => {
+      setShowModal(true)
+      try {
+        console.log('Clicked on task with ID:', taskId);
+        const response = await getTaskDetailsAPI(taskId);
+        setSelectedTaskDetails(response);
+         onUpdateTaskDetails(response);
+        const updatedTasks = tasks.map((task) => (task.id === taskId ? response : task));
+        setTasks(updatedTasks);
+        setShowModal(true);
+      } catch (error) {
+        console.error("Error fetching task details:", error);
+      }
+      
+    };
+
+    const [updatedTaskDetails, setUpdatedTaskDetails] = useState<Task | undefined>(undefined);
+   
+    const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
+      setUpdatedTaskDetails(updatedDetails);
+    };
+    
+    const updateTask = async () => {
+      try {
+        if (!updatedTaskDetails?.id) {
+          console.error("Task ID is undefined");
+          return;
+        }
+      
+        const updatedTaskCopy: Task = {
+          id: updatedTaskDetails.id,
+          title: updatedTaskDetails.title || "",
+          description: updatedTaskDetails.description || "",
+          dueDate: updatedTaskDetails.dueDate || "",
+          dueTime: updatedTaskDetails.dueTime || "",
+          reminder: updatedTaskDetails.reminder || "",
+          priority: updatedTaskDetails.priority || "low",
+          completed: updatedTaskDetails.completed || false,
+          archived: updatedTaskDetails.archived || false,
+        };
+    
+        await updateTaskAPI( updatedTaskDetails.id, updatedTaskCopy);
+        
+        setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === updatedTaskDetails.id ? updatedTaskCopy : task
+        )
+      );
+          setUpdatedTaskDetails(undefined);
+        
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
+    };
+    
+    if (updatedTaskDetails) {
+      updateTask();
+    }
+  
 
  
   return (
@@ -552,6 +616,8 @@ const handleArchivedTask = (task:Task) => {
                   tasks.map((task, index) => (
                     <>
                     <div key={index} className={styles.properties}>
+                      <div className={styles.PropsCons}>
+                      
                       <button
                           onClick={() => handleTaskCompletionToggle(index)}
                           className={styles.propertiesButton}
@@ -571,8 +637,9 @@ const handleArchivedTask = (task:Task) => {
                           
                         </div>
                       </div>
+                      </div>
                       <div className={styles.HoverMore}>
-                        <TaskOnHover  onTaskEdit={() => handleTaskEditClick(task)} onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)} />
+                        <TaskOnHover  onTaskEdit={() => handleTaskEditClick(task.id)} onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)} />
                       </div>
                       </div>
                     </div>
@@ -580,48 +647,88 @@ const handleArchivedTask = (task:Task) => {
                           <TaskInfo
                             setShowModal={setShowModal}
                             handleSpecificTask={handleSpecificTask}
-                            updateTaskAPI={updateTaskAPI}
                             taskId={task.id}
                             listId={parseListId}
                             task={selectedTaskDetails || undefined}
                             taskDetails={selectedTaskDetails}
+                            onUpdateTaskDetails={(updatedDetails:Task|undefined) =>
+                              setUpdatedTaskDetails(updatedDetails)
+                            }
       
                           />
                         )}
                     </>
                   ))
                 ) : (
-                  <p>No tasks available.</p>
+                  <div >
+              <div 
+              className={styles.imageProps}>
+                <button className={styles.taskButton} onClick={openPopup}
+                style={{ display: showButtons ? "flex" : "none" }}>
+                  + Add Task
+                </button>
+                {isPopupOpen && (
+                <Tasksform 
+                  onCancel={closePopup}
+                  onSubmit={(task) => createTask(task)}
+                  listId={parseListId}
+                  handleChange={handleChange}
+                  handleCustomDateChange={handleCustomDateChange}
+                  handleTimeChange={handleTimeChange}
+                  handleReminderChange={handleReminderChange}
+                />
+                
+              )}
+              </div>
+              <div className={styles.image}>
+                  <div>
+                    <img src="\public\images\image-10.jpg" className={styles.defaultImage} />
+                  </div>
+                  <div className={styles.text}>
+                  Start small (or dream big)...
+                    </div>
+                    <div className={styles.textII}>
+                    Track tasks, follow progress, and discuss details in one central, shared project.
+                    </div>
+                  </div>
+                </div>
                 )}
 
           </div>
-          <div
-            className="add-task"
-            style={{ display: showButtons ? "flex" : "none" }}
-          >
-            <button className={styles.taskButton} onClick={openPopup}>
-              + Add Task
-            </button>
-            <button
-              className={styles.taskButton}
-              style={{ color: "red" }}
-              onClick={openDeletePopup}
-            >
-              Clear All
-            </button>
-          </div>
-          {isPopupOpen && (
-            <Tasksform 
-              onCancel={closePopup}
-              onSubmit={(task) => createTask(task)}
-              listId={parseListId}
-              handleChange={handleChange}
-              handleCustomDateChange={handleCustomDateChange}
-              handleTimeChange={handleTimeChange}
-              handleReminderChange={handleReminderChange}
-            />
-            
-          )}
+          {Array.isArray(tasks) && tasks.length > 0 && (
+              <div className="add-task"
+              
+             >
+              <div
+              style={{ display: showButtons ? "flex" : "none" }}>
+                <button className={styles.taskButton} onClick={openPopup}
+                 >
+                  + Add Task
+                </button>
+                <button
+                  className={styles.taskButton}
+                  style={{ color: "red" }}
+                  onClick={openDeletePopup}
+                >
+                  Clear All
+                </button>
+                </div>
+              
+              {isPopupOpen && (
+                <Tasksform 
+                  onCancel={closePopup}
+                  onSubmit={(task) => createTask(task)}
+                  listId={parseListId}
+                  handleChange={handleChange}
+                  handleCustomDateChange={handleCustomDateChange}
+                  handleTimeChange={handleTimeChange}
+                  handleReminderChange={handleReminderChange}
+                />
+                
+              )}
+              </div>
+            )}
+          
         </div>
         <DeletePopup
           isOpen={isDeletePopupOpen}

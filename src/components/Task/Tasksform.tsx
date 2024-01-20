@@ -121,7 +121,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
     } finally {
       setIsSubmitting(false);
     }
-    
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -203,29 +202,12 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
             </div>
         </div>
         <div className={styles.footer}>
-          {/* <div className={styles.Listform}>
-            <div className={styles.inboxWrapper}>
-          
-          <button type="button" className={styles.inboxButton}>
-            <span className={styles.inboxSpan}>
-              <div className={styles.info}>
-                  <MdInbox />
-                      <span>
-                          inbox
-                      </span>
-                  <MdExpandMore />
-              </div>
-              </span>
-            </button>
-            
-            </div>
-          </div> */}
           <div className={styles.TaskButtonform}>
             <button type="button" onClick={() => onCancel()}
             className={styles.controlBtnClose}>
               Cancel
             </button>
-            <button type="submit" className={styles.controlBtn} >
+            <button type="submit" className={styles.controlBtn}>
               Add Task
               </button>
           </div>

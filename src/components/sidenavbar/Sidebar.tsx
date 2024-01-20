@@ -47,7 +47,8 @@ const Sidebar: React.FC= () => {
   // };
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
-
+  const firstName = useSelector((state: RootState) => state.auth.user?.firstName);
+  const lastName = useSelector((state: RootState) => state.auth.user?.lastName);
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleSubmit = async (newList: NewList) => {
@@ -149,9 +150,13 @@ const Sidebar: React.FC= () => {
       <div className={`nav ${isOpen ? "" : "sidebar-closed"}`}>
         <div style={{ width: isOpen ? "220px" : "50px" }} className="sidebar">
           <div className="top_section">
-            <h1 style={{ display: isOpen ? "block" : "none" }} className="logo">
-              Todo
-            </h1>
+            <div className="placeholder" >
+              <img src={`https://ui-avatars.com/api/?background=f00&color=fff&name=${firstName}+${lastName}`} alt=""  
+              style={{borderRadius:"50%",height:"25px"}}/>
+              <p style={{ display: isOpen ? "block" : "none" }} className="logo">
+                {firstName}
+              </p>
+            </div>
             <div
               style={{ marginLeft: isOpen ? "85px" : "0px" }}
               className="bars"
@@ -215,9 +220,9 @@ const Sidebar: React.FC= () => {
         
         {isOpen && (
         <div className="logout" onClick={handleLogout}>
-          <div>
+
             <IoIosLogOut style={{ color: "red", fontSize: "17px" }} />
-          </div>
+          
           <button className="logout-button" >
             Log out
         </button>

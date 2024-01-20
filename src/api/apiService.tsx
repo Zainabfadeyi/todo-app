@@ -58,6 +58,21 @@ export const useApiService = () => {
       throw new Error(`Error updating task completion: ${error}`);
     }
   };
+  const updateTaskCompletionByIdAPI = async ( taskId: number, completed: boolean, accessToken: string | null) => {
+    try {
+      const apiUrl = `/api/v1/task/completed/${taskId}?completed=${completed}`;
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+   
+      return response.data;
+     
+    } catch (error) {
+      throw new Error(`Error updating task completion: ${error}`);
+    }
+  };
 
   const deleteListAPI = async () => {
     try {
@@ -105,7 +120,6 @@ export const useApiService = () => {
       });
   
       const updatedAllTask = updatedTasks.data;
-      // setLists(updatedAllTask);
     } catch (error) {
       console.error("Error deleting list:", error);
     }
@@ -186,22 +200,20 @@ export const useApiService = () => {
   const getTaskDetailsAPI = async (taskId:number|undefined) => {
     try {
     
-      const apiUrl = `/api/v1/task/${parseListId}/${taskId}`;
-      console.log(apiUrl)
+      const apiUrl = `/api/v1/task/${taskId}`;
       
       const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log(response)
 
       return response.data;
     } catch (error) {
       console.error("Error fetching task details:", error);
     }
   };
-  const updateTaskAPI = async (parseListId:number|undefined, taskId: number|undefined, updatedTask: Task) => {
+  const updateTaskAPI = async ( taskId: number|undefined,updatedTask: Task) => {
     try {
       if (!parseListId || !taskId) {
         console.error("List ID or Task ID is undefined");
@@ -209,13 +221,38 @@ export const useApiService = () => {
       }
 
       const apiUrl = `/api/v1/task/${parseListId}/${taskId}`;
-      console.log(apiUrl)
-      const response = await axios.put(apiUrl, updatedTask, 
-        {
+
+    
+      const response = await axios.put(apiUrl, updatedTask, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error updating task:', error);
+      throw error;
+    }
+  };
+  const updateTaskByIdAPI = async ( taskId: number|undefined,updatedTask: Task) => {
+    try {
+      if (!taskId) {
+        console.error(" Task ID is undefined");
+        return;
+      }
+
+      const apiUrl = `/api/v1/task/${taskId}`;
+      console.log(taskId)
+      console.log(updatedTask)
+      console.log(apiUrl)
+    
+      const response = await axios.put(apiUrl, updatedTask, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      
 
       console.log("Task updated successfully:", response.data);
       return response.data;
@@ -226,7 +263,8 @@ export const useApiService = () => {
   };
   const archiveTaskAPI = async (taskId: number) => {
     try {
-      const apiUrl = `/api/v1/task/archive/${taskId}`;  
+      const apiUrl = `/api/v1/task/archive/${taskId}`; 
+      console.log(apiUrl) 
       const response = await axios.post(apiUrl, null, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -275,16 +313,19 @@ export const useApiService = () => {
   return {
     getSortedTasksAPI,
     updateTaskCompletionAPI,
+    updateTaskCompletionByIdAPI,
     deleteListAPI,
     deleteAllTaskAPI,
     deleteTaskAPI,
     updateListAPI,
     getTaskDetailsAPI,
     updateTaskAPI,
+    updateTaskByIdAPI,
     archiveTaskAPI,
     unArchiveTaskAPI,
     searchTaskAPI,
-    deleteTaskByIdAPI
+    deleteTaskByIdAPI,
+
   };
 };
 

@@ -30,16 +30,6 @@ export const SearchResult: React.FC<SearchResultProps> = ({ taskId, result, task
     )
 
   const handleResultClick = async (taskId:number|undefined) => {
-    // try {
-      
-    //   console.log(taskId)
-    //   if (taskId && parseListId) {
-    //     const response = await getTaskDetailsAPI(taskId);
-        
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching task details:", error);
-    // }
     try {
       console.log('Clicked on task with ID:', taskId);
       const response = await getTaskDetailsAPI(taskId);

@@ -222,12 +222,12 @@ const closeDeletePopup = () => {
               <h3>My list</h3>
             </div>
           </header>
-          <hr style={{ width: "100%" }} />
+          <div style={{ width: "100%" ,border: "1px solid #f5f5f5" }}></div>
           <div className={styles.addList} onClick={openPopup}>
-            <button className={styles.listButton} type="button">+ Add List</button>
+            <button className={styles.listButton} type="button"><span style={{ fontSize: "20px"}}>+</span>{""}<span>Add List</span></button>
           </div>
           <p className={styles.listCount}>{lists.length} {lists.length === 1 ? "List" : "Lists"}</p>
-          <hr/>
+          <div style={{border: "1px solid #f5f5f5"}}></div>
           <ul className={styles.myList}>
             {lists.map((list) => (
               <li
@@ -240,12 +240,11 @@ const closeDeletePopup = () => {
                 <Link to={`/list/${list.id}/${encodeURIComponent(list.name)}`}
                 className={styles.ListStyle}>
                   <span style={{color:"black"}}>
-                   # {list.name}
+                   <span style={{fontSize:"18px", color:"#808080"}}>#</span>{" "}
+                   {list.name}
                   </span>
                 </Link>
-                <div className={styles.HoverMore}>
                   <ListOnHover onEdit={() => handleEditClick(list)} onDelete={() => handleDeleteClick(list)}  />
-                </div>
                 </div>
                 
                 </div>

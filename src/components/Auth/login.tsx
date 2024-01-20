@@ -29,7 +29,7 @@ const Login: React.FC = () => {
     if (userRef.current) userRef.current.focus();
   }, []);
 
-
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
 useEffect(() => {
 }, [isAuthenticated]);
@@ -58,7 +58,7 @@ useEffect(() => {
           setSuccess(true);
           setCustomMessage('Login successful!, You are logged in. Redirecting...');
       setTimeout(() => {
-        window.location.href = '/List';}, 2000)
+        window.location.href = '/inbox';}, 2000)
          
           const userDetailsResponse = await axios.get('/api/v1/user/details', {
             headers: { Authorization: `Bearer ${response?.data?.accessToken}` },
@@ -133,6 +133,15 @@ useEffect(() => {
                 value={pwd}
                 required
               />
+              <div style={{display:"flex", justifyContent:"right"}}>
+                  <a
+                      href="/forgotPassword"
+                      onClick={() => setShowForgotPassword(true)}
+                    >
+                      Forgot Password?
+                    </a>
+              </div>
+
               <button type="submit" className="buttonReg" >Sign In</button>
             </form>
             <p className="suggest">
@@ -140,7 +149,9 @@ useEffect(() => {
               <span className="line">
                 <a href="./register">Sign Up</a>
               </span>
+               
             </p>
+            
           </section>
           </div>
         )}
@@ -148,6 +159,17 @@ useEffect(() => {
         <div className="ImgContainer">
             <img src="public/images/svg-11.svg"  className="RegImage" />
         </div>
+
+        {/* {showForgotPassword && (
+        <div>
+          <button onClick={() => setShowForgotPassword(false)}>
+            Close Forgot Password
+          </button>
+          <ForgotPassword />
+        </div>
+      )} */}
+
+
 
       </div>
     </>

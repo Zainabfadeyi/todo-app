@@ -45,11 +45,11 @@ const ArchivedOnHover : React.FC<ArchivedOnHoverProps> = ({ onTaskDelete,onTaskU
       </div>
          {showMoreOptions &&(
                <div className={styles.dropdownmore}>
-                     {/* <div className={styles.itemDropdownmore}
+                     <div className={styles.itemDropdownmore}
                      onClick={onTaskEdit}>
                      <AiOutlineEdit />
                      <p>Edit</p>
-                     </div> */}
+                     </div>
                      <hr  className={styles.linebreak}/>
                      <div className={styles.itemDropdownmore}
                      onClick={onTaskUnArchived}>

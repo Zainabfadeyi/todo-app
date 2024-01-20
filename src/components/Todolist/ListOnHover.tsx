@@ -32,7 +32,6 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit, onDelete }) => {
 
   return (
    <>
-    <div  >
       <div className={styles.TaskIcon} ref={TaskDropdownRef}>
       <button
          onClick={() => setShowMoreOptions(!showMoreOptions)}
@@ -40,8 +39,8 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit, onDelete }) => {
          >
          <IoMdMore />
       </button>
-      </div>
-         {showMoreOptions &&(
+
+      {showMoreOptions &&(
                <div className={styles.dropdownmore}>
                      <div className={styles.itemDropdownmore} onClick={onEdit}>
                      <AiOutlineEdit />
@@ -62,7 +61,7 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit, onDelete }) => {
                      <p>Delete</p>
                      </div>
             </div>)}
-         </div>
+      </div>
     </>
   )
 }

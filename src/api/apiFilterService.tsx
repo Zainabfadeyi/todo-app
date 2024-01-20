@@ -20,7 +20,7 @@ export const useFilterService = () => {
 
   const filterTodayTasksAPI = async () => {
     try {
-      const apiUrl = `/api/v1/task/filter/today`;
+      const apiUrl = `/api/v1/task/filter/today/${userId}`;
 
       const response = await axios.get(apiUrl, {
         headers: {
@@ -36,7 +36,7 @@ export const useFilterService = () => {
 
   const filterOverdueTasksAPI = async () => {
     try {
-      const apiUrl = `/api/v1/task/filter/overdue`;
+      const apiUrl = `/api/v1/task/filter/overdue/${userId}`;
 
       const response = await axios.get(apiUrl, {
         headers: {
@@ -52,7 +52,7 @@ export const useFilterService = () => {
 
   const filterUpcomingTasksAPI = async () => {
     try {
-      const apiUrl = `/api/v1/task/filter/upcoming`;
+      const apiUrl = `/api/v1/task/filter/upcoming/${userId}`;
 
       const response = await axios.get(apiUrl, {
         headers: {
@@ -68,7 +68,8 @@ export const useFilterService = () => {
 
   const filterArchivedTasksAPI = async () => {
     try {
-      const apiUrl = `/api/v1/task/archive`;
+      const apiUrl = `/api/v1/task/archive/${userId}`;
+      console.log(apiUrl)
 
       const response = await axios.get(apiUrl, {
         headers: {

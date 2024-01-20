@@ -284,8 +284,9 @@ const Register: React.FC = () => {
 
 
                 <button
-                  disabled={!validName || !validEmail || !validPwd || !validMatch}
+                  disabled={ !validEmail || !validPwd || !validMatch}
                   className="buttonReg"
+                  type="submit"
                 >
                   Sign Up
                 </button>

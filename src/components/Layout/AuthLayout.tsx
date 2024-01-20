@@ -7,12 +7,13 @@ interface NewList {
   id: number;
   text: string;
 }
-const Layout = () => {
+const AuthLayout = () => {
   const [authToken, setAuthToken] = useState("");
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const authState = localStorage.getItem("authState");
     const token = authState ? JSON.parse(authState).accessToken : "";
+    console.log(token);
     if(token) {
       setAuthToken(token);
     }
@@ -24,15 +25,12 @@ const Layout = () => {
       {
         (
           loaded ? (
-            (authToken) ? (
-              <div style={{ display: "flex"}}>
-                <Sidebar/>
-                <div className={styles.right}>
+            (!authToken) ? (
+              <div>
                   <Outlet />
-                </div>
               </div>
               ) : (
-                <Navigate to={"/login"} />
+                <Navigate to={"/Login"} />
               )
           ): null
         )
@@ -41,4 +39,4 @@ const Layout = () => {
   )
 }
 
-export default Layout
+export default AuthLayout

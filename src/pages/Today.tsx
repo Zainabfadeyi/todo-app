@@ -10,47 +10,49 @@ import {  useSelector } from "react-redux";
 import FilterOnHover from '../components/Task/FilterOnHover';
 import { useApiService } from '../api/apiService';
 import DeleteTaskPopup from '../components/Task/DeleteTaskPopup';
+import FilterInfo from '../components/Task/FilterInfo';
 
 type SortType = "id" | "priority" | "title";
 
-const Today: React.FC<{ tasks: Task[] }> = () => { 
-  const [isVisible, setIsVisible] = useState(true);
+const Today: React.FC = () => { 
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
-  const [contentAdded, setContentAdded] = useState(false);
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDeleteTaskPopupOpen, setIsDeleteTaskPopupOpen] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [todayTasks, setTodayTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true);
-  const { archiveTaskAPI,deleteTaskByIdAPI } = useApiService();
-
+  const { archiveTaskAPI,deleteTaskByIdAPI,getTaskDetailsAPI,updateTaskByIdAPI } = useApiService();
+  const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>();
+  const [updatedTaskDetails, setUpdatedTaskDetails] = useState<Task | undefined>(undefined);
   const closeDeleteTaskPopup=()=>{
     setIsDeleteTaskPopupOpen(false)
   }
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
 
-  const handleSortChange = (selectedSort: SortType) => {
-    setSort(selectedSort);
-    setShowSort(false);
-    localStorage.setItem('sort', selectedSort);
-  };
+ 
 
   
     const fetchSortTasks = async () => {
+      console.log(sort);
       try {
-        const sortedTasks = await sortFilterTaskService(accessToken,sort);
+        const sortedTasks = await sortFilterTaskService(accessToken,sort, userId);
         setTodayTasks(sortedTasks);
         console.log(sortedTasks)
       } catch (error) {
         console.error('Error fetching sorted tasks:', error);
       }
+
     };
 
+    const handleSortChange = (selectedSort: SortType) => {
+      setSort(selectedSort);
+      setShowSort(false);
+      localStorage.setItem('sort', selectedSort);
+    };
 
   useEffect(() => {
     const savedSort = localStorage.getItem('sort');
@@ -62,8 +64,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
     }
     
   }, [ sort])
-
-
+  
 
   const sortDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,21 +86,17 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
   }, []);
   const onHoverSort = () => setHoverSort(true);
   const onLeaveSort = () => setHoverSort(false);
-  const addContent = () => {
-    // Add your logic here to add content
-    // For now, let's just set contentAdded to true
-    setContentAdded(true);
-  };
+ 
   const handleChange = (field: keyof Task, value: string) => {
     setEditingTask((prevTask) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
+      ...(prevTask as Task), 
       [field]: value,
     }));
   };
 
   const handleCustomDateChange = (value: string) => {
     setEditingTask((prevTask: Task | null) => ({
-      ...(prevTask as Task), // Cast prevTask to Task
+      ...(prevTask as Task),
       dueDate: value,
     }));
   };
@@ -128,7 +125,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
     const fetchTodayTasks = async () => {
       try {
         const fetchedTasks = await filterTodayTasksAPI();
-        setTodayTasks(fetchedTasks);
+        setTodayTasks(fetchedTasks)
         setLoading(false); 
       } catch (error) {
         console.error('Error fetching today tasks:', error);
@@ -137,29 +134,31 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
     };
 
     fetchTodayTasks();
-  }, [filterTodayTasksAPI,fetchSortTasks]);
+  }, []);
 
   if (loading) {
-    return <p>Loading...</p>; // You can show a loading indicator here
+    return <p>Loading...</p>;
   }
   
-  const handleArchivedTask = (task:Task) => {
-    if (editingTask && editingTask.id) {
-      archiveTaskAPI(editingTask.id)
-        .then(() => {
-          setTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
+
+  const handleArchivedTask = async (task:Task) => {
+    if (task && task.id) {
+      archiveTaskAPI(task.id)
+        .then(async () => {
+          const fetchedTasks = await filterTodayTasksAPI();
+          setTodayTasks(fetchedTasks)
+        setLoading(false); 
         })
         .catch((error) => {
           console.error("Error deleting task:", error);
         });
     }
-    setEditingTask(task)
   };
   const handleDeleteTask = () => {
     if (editingTask && editingTask.id) {
       deleteTaskByIdAPI(editingTask.id)
         .then(() => {
-          setTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
+          setTodayTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
           setIsDeleteTaskPopupOpen(false);
         })
         .catch((error) => {
@@ -167,6 +166,78 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
         });
     }
   };
+  const handleSpecificTask = async (taskId: number|undefined) => {
+    setShowModal(true);
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+
+       const fetchedTasks = await filterTodayTasksAPI();
+        setTodayTasks(fetchedTasks);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+  };
+  const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
+    setUpdatedTaskDetails(updatedDetails);
+  }
+  const handleEditTask = async(taskId: number|undefined) => {
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+      const fetchedTasks = await filterTodayTasksAPI();
+      setTodayTasks(fetchedTasks);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+    
+  };
+  
+ 
+ const updateTask = async () => {
+  try {
+    if (!updatedTaskDetails?.id) {
+      console.error("List ID or Task ID is undefined");
+      return;
+    }
+  
+    const updatedTaskCopy: Task = {
+      id: updatedTaskDetails.id,
+      title: updatedTaskDetails.title || "",
+      description: updatedTaskDetails.description || "",
+      dueDate: updatedTaskDetails.dueDate || "",
+      dueTime: updatedTaskDetails.dueTime || "",
+      reminder: updatedTaskDetails.reminder || "",
+      priority: updatedTaskDetails.priority || "low",
+      completed: updatedTaskDetails.completed || false,
+      archived: updatedTaskDetails.archived || false,
+    };
+
+    await updateTaskByIdAPI( updatedTaskDetails.id, updatedTaskCopy);
+
+    setTodayTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === updatedTaskDetails.id ? updatedTaskCopy : task
+      )
+    );
+    setUpdatedTaskDetails(undefined);
+  } catch (error) {
+    console.error("Error updating task:", error);
+  }
+};
+
+if (updatedTaskDetails) {
+  updateTask();
+}
+
+
+
   return (
     <>
     <div  className={styles.container}>
@@ -241,10 +312,7 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
                 <div className={styles.Content}>
                   <div
                     className={styles.Taskprops}
-                    onClick={() => {
-                      setShowModal(true);
-                      setEditingTask(task);
-                    }}
+                    onClick={() => handleSpecificTask(task.id)}
                   >
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
@@ -252,9 +320,23 @@ const Today: React.FC<{ tasks: Task[] }> = () => {
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
-                  <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)}/>
+                  <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)} onTaskEdit={()=> handleEditTask(task.id)}/>
                 </div>
               </div>
+
+              {showModal && (
+                    <FilterInfo
+                      setShowModal={setShowModal}
+                      handleSpecificTask={handleSpecificTask}
+                      taskId={task.id}
+                      task={selectedTaskDetails || undefined}
+                      taskDetails={selectedTaskDetails}
+                      onUpdateTaskDetails={(updatedDetails:Task|undefined) =>
+                        setUpdatedTaskDetails(updatedDetails)
+                      }
+      
+                  />
+                )}
               </>
             ))}
           </div>

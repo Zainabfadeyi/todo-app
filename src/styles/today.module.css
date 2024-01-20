@@ -22,7 +22,7 @@
     max-width: 360px;
     text-align: center;
     transition: opacity .17s ease-in;
-    font-family: Georgia, 'Times New Roman', Times, serif;
+   
 
 }
 .defaultImage{
@@ -139,8 +139,6 @@
    justify-content: center;
 }
 .Content{
-   display: inline-flex;
-   /* column-gap: 300px; */
    width: 100%;
 
 }
@@ -171,3 +169,6 @@
    cursor: pointer;
    text-align: left;
 }
+.completedTask {
+   text-decoration: line-through;
+ }

@@ -3,9 +3,10 @@ import {IoMdMore } from "react-icons/io";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { IoMdArchive } from "react-icons/io";
 import styles from "../../styles/TaskOnHover.module.css";
+import { AiOutlineEdit } from 'react-icons/ai';
 
 interface FilterOnHoverProps {
-  onTaskEdit?: () => void;
+  onTaskEdit: () => void;
   onTaskDelete: () => void; 
   onTaskArchived:()=> void;
 }
@@ -44,11 +45,11 @@ const FilterOnHover : React.FC<FilterOnHoverProps> = ({ onTaskDelete,onTaskArchi
       </div>
          {showMoreOptions &&(
                <div className={styles.dropdownmore}>
-                     {/* <div className={styles.itemDropdownmore}
+                     <div className={styles.itemDropdownmore}
                      onClick={onTaskEdit}>
                      <AiOutlineEdit />
                      <p>Edit</p>
-                     </div> */}
+                     </div>
                      <hr  className={styles.linebreak}/>
                      <div className={styles.itemDropdownmore}
                      onClick={onTaskArchived}>

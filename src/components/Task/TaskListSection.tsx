@@ -1,29 +1,26 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Task } from '../../api/createTaskApi';
 import styles from "../../styles/upcoming.module.css"
 import { IoIosCheckmark } from 'react-icons/io';
 
 interface TaskListSectionProps {
   tasks: Task[];
-  dueDate: string; // Assuming dueDate is a string for simplicity
+  dueDate: string; 
+  onTaskClick: (taskId: number|undefined) => void;
+  onUpdateTask: (updatedTask: Task)=> void
 }
 
-const TaskListSection: React.FC<TaskListSectionProps> = ({ tasks, dueDate }) => {
+
+const TaskListSection: React.FC<TaskListSectionProps> = ({ tasks, dueDate, onTaskClick ,onUpdateTask}) => {
+  
+
   return (
-    <div>
-    <div style={{width:"200%", marginRight:"40px", paddingRight:"50px"}}>
-      <h4 >{dueDate}</h4>
+    <div className={styles.PropsCover}>
+    <div className={styles.Cover}>
+      <div className={styles.SectionBoard}>{dueDate}</div>
       </div>
-      {/* <ul>
-        {tasks.map((task) => (
-          <li key={task.id}>
-            <p>{task.title}</p>
-            <p>{task.description}</p>
-          
-          </li>
-        ))}
-      </ul> */}
+      
             <div style={{ textAlign: "left" }} className={styles.taskname}>
             {tasks.map((task, index) => (
               <>
@@ -35,12 +32,11 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({ tasks, dueDate }) => 
                   >
                 </button>
                 <div className={`${styles.Content} ${task.completed ? styles.completedTask : ''}`}></div>
-                <div className={styles.Content}>
+                <div className={styles.Content } onClick={() => onTaskClick(task.id)}>
                   
-                    <h3>{task.title}</h3>
-                    <p>{task.description}</p>
-                    <p>{task.dueDate}</p>
-                    <p>{task.todoList?.name}</p>
+                    <h3 style={{fontSize:"14px"}}>{task.title}</h3>
+                    <p  style={{fontSize:"12px"}}>{task.description}</p>
+                    <p  style={{fontSize:"12px"}}>{task.dueDate}</p>
                 </div>
                 
                 </div>

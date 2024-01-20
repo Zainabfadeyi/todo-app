@@ -47,15 +47,15 @@ export const DeleteTaskPopup
         aria-describedby="dialog-description"
       >
         <DialogTitle id="dialog-title" style={{ fontSize: "19px", color: "red" }}>
-          Delete List
+          Delete Task
         </DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContentText
             id="dialog-description"
-            width={"500px"}
+            width={"400px"}
             style={{ fontSize: "18px", padding: "10px", marginLeft: "10px" }}
           >
-            Are you sure you want to delete {(taskName) || "this List"}
+            Are you sure you want to delete <span style={{ fontWeight: "600" }}>&quot;{(taskName) || "this List"}&quot;</span>
           </DialogContentText>
           <DialogActions>
             <Button
@@ -64,12 +64,12 @@ export const DeleteTaskPopup
               }}
               type="button"
               style={{
-                backgroundColor: "grey",
+                backgroundColor: "#f5f5f5",
                 fontSize: "10px",
                 color: "black",
                 boxSizing: "border-box",
               }}
-              disabled={isDeleting} // Disable the button during deletion
+              disabled={isDeleting} 
             >
               Cancel
             </Button>
@@ -77,12 +77,12 @@ export const DeleteTaskPopup
               autoFocus
               type="submit"
               style={{
-                backgroundColor: "red",
-                fontSize: "12px",
+                backgroundColor: "#DC4C3E",
+                fontSize: "10px",
                 color: "white",
                 boxSizing: "border-box",
               }}
-              disabled={isDeleting} // Disable the button during deletion
+              disabled={isDeleting} 
             >
               Delete
             </Button>

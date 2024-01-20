@@ -222,7 +222,6 @@
  .wrapper{
    display: flex;
    align-items: center;
-   /* column-gap: -10px; */
    border: 1px solid #ccc;
    border-radius: 10px;
    padding: 0 10px;
@@ -241,8 +240,6 @@
    font-size: 12px;
    padding:-7px;
    width:73px;
-   /* margin-top: -15px; */
-
  }
  .calender{
    font-size: 10px;

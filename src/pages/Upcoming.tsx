@@ -1,13 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useFilterService } from '../api/apiFilterService';
 import TaskListSection from '../components/Task/TaskListSection';
 import { Task } from '../api/createTaskApi';
 import { DateTime } from 'luxon';
 import styles from "../styles/upcoming.module.css"
-const UpcomingPage: React.FC = () => {
-  const { filterUpcomingTasksAPI } = useFilterService();
-  const [upcomingTasks, setUpcomingTasks] = useState<Task[]>([]);
+import FilterInfo from '../components/Task/FilterInfo';
+import { useApiService } from '../api/apiService';
 
+
+
+const UpcomingPage: React.FC = () => {
+  const { unArchiveTaskAPI,deleteTaskByIdAPI, getTaskDetailsAPI,updateTaskAPI,updateTaskByIdAPI } = useApiService();
+  const { filterUpcomingTasksAPI } = useFilterService();
+  const [updatedTaskDetails, setUpdatedTaskDetails] = useState<Task | undefined>(undefined);
+  const [upcomingTasks, setUpcomingTasks] = useState<Task[]>([]);
+  const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>(undefined);
+  const [showModal, setShowModal] = useState(false);
+  const clearSelectedTask = () => {
+    setSelectedTaskDetails(undefined);
+  };
   useEffect(() => {
     const fetchUpcomingTasks = async () => {
       try {
@@ -19,7 +30,7 @@ const UpcomingPage: React.FC = () => {
     };
 
     fetchUpcomingTasks();
-  }, [filterUpcomingTasksAPI]);
+  }, []);
 
  
   const formatDate = (dateString: string): string => {
@@ -27,6 +38,7 @@ const UpcomingPage: React.FC = () => {
       month: 'short',
       day: 'numeric',
       weekday: 'long',
+    
       
     });
   };
@@ -35,7 +47,7 @@ const UpcomingPage: React.FC = () => {
     const nextSevenDays: string[] = [];
 
     for (let i = 1; i <= 7; i++) {
-      const date = DateTime.now().plus({ days: i }).toISODate(); // Luxon method to calculate the date
+      const date = DateTime.now().plus({ days: i }).toISODate(); 
       if (date) {
         nextSevenDays.push(date);
       }
@@ -48,7 +60,7 @@ const UpcomingPage: React.FC = () => {
     const groupedTasks: { [key: string]: Task[] } = {};
 
     for (const task of upcomingTasks) {
-      const dueDate = task.dueDate; // Assuming task.dueDate is a string
+      const dueDate = task.dueDate;
 
       if (!groupedTasks[dueDate]) {
         groupedTasks[dueDate] = [];
@@ -59,6 +71,54 @@ const UpcomingPage: React.FC = () => {
 
     return groupedTasks;
   };
+  const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
+    setUpdatedTaskDetails(updatedDetails);
+  }
+  const handleSpecificTask = async (taskId: number|undefined) => {
+    setShowModal(true);
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+     
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+  };
+  
+  const handleUpdateTask = async () => {
+
+    try {
+      if (!updatedTaskDetails?.id) {
+        console.error("List ID or Task ID is undefined");
+        return;
+      }
+    
+      const updatedTaskCopy: Task = {
+        id: updatedTaskDetails.id,
+        title: updatedTaskDetails.title || "",
+        description: updatedTaskDetails.description || "",
+        dueDate: updatedTaskDetails.dueDate || "",
+        dueTime: updatedTaskDetails.dueTime || "",
+        reminder: updatedTaskDetails.reminder || "",
+        priority: updatedTaskDetails.priority || "low",
+        completed: updatedTaskDetails.completed || false,
+        archived: updatedTaskDetails.archived || false,
+      };
+  
+      await updateTaskByIdAPI( updatedTaskDetails.id, updatedTaskCopy);
+      setUpdatedTaskDetails(undefined);
+  
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+  if (updatedTaskDetails) {
+    handleUpdateTask();
+  }
+
 
   return (
     <div className={styles.taskContainer}>
@@ -68,14 +128,29 @@ const UpcomingPage: React.FC = () => {
     </div>
   
     <div  
-    className={styles.boardView}>
+    className={styles.boardView} >
       {getNextSevenDays().map((date) => (
-        <TaskListSection key={date} tasks={groupTasksByDate()[date] || []} dueDate={formatDate(date)} />
+        <TaskListSection key={date} tasks={groupTasksByDate()[date] || []} dueDate={formatDate(date)}  onTaskClick={handleSpecificTask} onUpdateTask={handleUpdateTask}/>
       ))}
     </div>
 
 
     </div>
+    {selectedTaskDetails && showModal && (
+      <FilterInfo
+        setShowModal={setShowModal}  
+        task={selectedTaskDetails}
+        handleSpecificTask={handleSpecificTask}
+        taskId={selectedTaskDetails.id}
+        taskDetails={selectedTaskDetails}
+        onUpdateTaskDetails={(updatedDetails:Task|undefined) =>
+          setUpdatedTaskDetails(updatedDetails)
+        }
+        onUpdateTask={handleUpdateTask}
+
+
+      />
+)}
     </div>
   );
 };

@@ -51,18 +51,23 @@ export const DeletePopup: React.FC<PopupTaskProps> = ({
         onClose={onClose}
         aria-labelledby="dialog-title"
         aria-describedby="dialog-description"
+    //     style={{
+    //    borderRadius:"30px",
+    //   boxSizing:"border-box",
+    //   width:"100%"
+    // }}
       >
         <DialogTitle
           id="dialog-title"
-          style={{ fontSize: "19px", color: "red" }}
+          style={{ fontSize: "16px", color: "red" }}
         >
           Delete All Task
         </DialogTitle>
         <form onSubmit={handleDelete}>
         <DialogContentText
           id="dialog-description"
-          width={"500px"}
-          style={{ fontSize: "18px", padding: "10px", marginLeft: "10px" }}
+          width={"400px"}
+          style={{ fontSize: "14px", padding: "10px", marginLeft: "10px" }}
         >
           Are you sure you want to delete all task?
         </DialogContentText>
@@ -71,7 +76,7 @@ export const DeletePopup: React.FC<PopupTaskProps> = ({
             autoFocus
             type="button"
             style={{
-              backgroundColor: "grey",
+              backgroundColor: "#f5f5f5",
               fontSize: "10px",
               color: "black",
               boxSizing: "border-box",
@@ -85,10 +90,11 @@ export const DeletePopup: React.FC<PopupTaskProps> = ({
             autoFocus
             type="submit"
             style={{
-              backgroundColor: "red",
-              fontSize: "12px",
+              backgroundColor: "#DC4C3E",
+              fontSize: "10px",
               color: "white",
               boxSizing: "border-box",
+             
             }}
             disabled={isDeleting} 
           >
@@ -103,3 +109,7 @@ export const DeletePopup: React.FC<PopupTaskProps> = ({
 };
 
 export default DeletePopup;
+
+
+
+

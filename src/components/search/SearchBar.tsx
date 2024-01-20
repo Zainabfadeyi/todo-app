@@ -28,21 +28,7 @@ const parseListId = id ? parseInt(id, 10) : undefined;
     fetchData(value)
     
   };
-  // const fetchData = (value:any) => {
-  //   fetch("https://jsonplaceholder.typicode.com/users")
-  //     .then((response) => response.json())
-  //     .then((json) => {
-  //       const results = json.filter((user: any) => {
-  //         return (
-  //           value &&
-  //           user &&
-  //           user.name &&
-  //           user.name.toLowerCase().includes(value)
-  //         );
-  //       });
-  //       setResults(results);
-  //     });
-  // };
+  
 
   const fetchData = async (value: any) => {
     try {

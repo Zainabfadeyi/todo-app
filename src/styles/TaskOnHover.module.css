@@ -3,7 +3,7 @@
 
 }
 .taskMoreButtons{
-   background-color: #fff;
+   background-color:transparent;
    border-radius: none;
    border: none;
    margin-top: 0;
@@ -12,7 +12,8 @@
    display: inline-flex;
    align-items: center;
    justify-content: center;
-   margin-top: 5px;
+   /* margin-top: 5px; */
+   font-size: 14px;
 }
 .dropdownmore {
    width: 150px;
@@ -41,10 +42,10 @@
 }
 .TaskIcon{
    display: inline-flex;
-   margin-top: -5px;
+   
 }
 .taskMoreButtons:hover{
-   background-color: #eee;
+   background-color:transparent;
 }
 
 
