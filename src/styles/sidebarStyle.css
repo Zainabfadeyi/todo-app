@@ -18,7 +18,8 @@
     justify-content: space-between;
 }
 .logo{
-    font-size: 20px;
+    font-weight: 600;
+    font-size: 14px;
 }
 .bars{
     display: flex;
@@ -101,4 +102,27 @@
     margin-right: 10px;
 
 }
+.logout{
+    display: flex;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 250px;
+    align-items: center;
+    justify-content: center;
+    column-gap: 8px;
 
+}
+.logout-button{
+    display: flex;
+    background-color: #FAF8F7;
+    border-radius: none;
+    border: none;
+    font-size: 17px;
+    color: red;
+    cursor: pointer;
+}
+.placeholder{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}

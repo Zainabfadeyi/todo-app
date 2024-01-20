@@ -16,16 +16,26 @@ function CustomDatePicker({ setTask }: any) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [shortcutInput, setShortcutInput] = useState<string>("");
   
- const closeShortcutDate=()=>{
-  setShowShortcuts(false);
- }
+//  const closeShortcutDate=()=>{
+//   setShowShortcuts(false);
+//  }
 
-  const toggleShortcuts = () => {
-    setShowShortcuts(!showShortcuts);
-  };
+//   const toggleShortcuts = () => {
+//     setShowShortcuts(!showShortcuts);
+//   };
+const toggleShortcuts = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  setShowShortcuts(!showShortcuts);
+  console.log("Closing shortcuts");
+};
+
+const closeShortcutDate = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  setShowShortcuts(false);
+};
+
   const onShortcutChange = (shortcut: string) => {
     let newDate:string;
-    console.log("the shortcut", shortcut)
     switch (shortcut) {
       case 'today':
         newDate = today;
@@ -56,9 +66,10 @@ function CustomDatePicker({ setTask }: any) {
       ...prevTask,
       dueDate: newDate,
     }));
-    setShowShortcuts(false);
     setShortcutInput(shortcut);
-    setSelectedDate(null);; 
+    setSelectedDate(null);
+    toggleShortcuts
+    console.log(toggleShortcuts)
     console.log(`Shortcut changed: ${shortcut}`);
   };
 
@@ -83,6 +94,9 @@ function CustomDatePicker({ setTask }: any) {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+  // useEffect(() => {
+  //   console.log("showShortcuts updated:", showShortcuts);
+  // }, [showShortcuts]);
   return (
     <>
       <div className={styles.inputContainer} ref={sortShowDateRef}
@@ -95,8 +109,10 @@ function CustomDatePicker({ setTask }: any) {
             ? selectedDate.toDateString()
               : shortcutInput
               }
-              onClick={() => toggleShortcuts()}
-              onShortcutChange={onShortcutChange}
+              // onClick={() => toggleShortcuts()}
+               onClick={(e) => toggleShortcuts(e)}
+            onShortcutChange={onShortcutChange}
+              
             />
           </div>
           {showShortcuts && (
@@ -104,7 +120,8 @@ function CustomDatePicker({ setTask }: any) {
             onClick={closeShortcutDate}>
               <div className={styles.dateShortcuts}>
                 <div className={styles.dropdownmore}
-                onClick={() => toggleShortcuts()}
+                // onClick={() => toggleShortcuts()}
+                onClick={(e) => closeShortcutDate(e)}
                 >
                   <BsFillCalendarFill />
                   <button
@@ -116,7 +133,6 @@ function CustomDatePicker({ setTask }: any) {
                   </button>
                 </div>
                 <div className={styles.dropdownmore}
-                onClick={closeShortcutDate}
                 >
                   <IoIosSunny />
                   <button
@@ -157,7 +173,6 @@ function CustomDatePicker({ setTask }: any) {
                 selected={selectedDate}
                 onChange={(date) => {
                   setSelectedDate(date);
-                  toggleShortcuts(); // Close shortcuts after selecting a date
                   setShortcutInput(""); 
                   setShowShortcuts(false)
                   setTask((prevTask: any) => ({
@@ -166,7 +181,6 @@ function CustomDatePicker({ setTask }: any) {
                   }));
                 }}
                 inline
-                dateFormat="yyyy-MM-dd"
               />
             </div>
           )}

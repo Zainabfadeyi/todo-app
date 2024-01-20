@@ -5,9 +5,14 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 import { IoMdArchive } from "react-icons/io";
 import styles from "../../styles/TaskOnHover.module.css";
 
+interface TaskOnHoverProps {
+  onTaskEdit?: () => void;
+  onTaskDelete: () => void; 
+  onTaskArchived:()=> void;
+}
 
 
-const TaskOnHover = () => {
+const TaskOnHover : React.FC<TaskOnHoverProps> = ({ onTaskDelete, onTaskEdit,onTaskArchived }) => {
    const [showMoreOptions, setShowMoreOptions] = useState(false);
    const TaskDropdownRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -40,12 +45,14 @@ const TaskOnHover = () => {
       </div>
          {showMoreOptions &&(
                <div className={styles.dropdownmore}>
-                     <div className={styles.itemDropdownmore}>
+                     <div className={styles.itemDropdownmore}
+                     onClick={onTaskEdit}>
                      <AiOutlineEdit />
                      <p>Edit</p>
                      </div>
                      <hr  className={styles.linebreak}/>
-                     <div className={styles.itemDropdownmore}>
+                     <div className={styles.itemDropdownmore}
+                     onClick={onTaskArchived}>
                      <IoMdArchive />
                      <p>Archive</p>
                      </div>
@@ -53,6 +60,7 @@ const TaskOnHover = () => {
                      <div
                      style={{ color: "red" }}
                      className={styles.itemDropdownmore}
+                     onClick={onTaskDelete}
                      >
                      <RiDeleteBin5Line />
                      <p>Delete</p>

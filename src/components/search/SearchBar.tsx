@@ -1,46 +1,55 @@
-import React, { useState } from "react";
+import React, { useState , Dispatch, SetStateAction, useEffect} from "react";
 import { FaSearch } from "react-icons/fa";
-
+import { useApiService } from '../../api/apiService'
 import "./SearchBar.css";
+import { useParams } from "react-router-dom";
+import { Task } from "../../api/createTaskApi";
+import { SearchResultItem } from "./SearchResultList";
 
 interface SearchBarProps {
-  setResults: React.Dispatch<React.SetStateAction<any[]>>;
+  setResults: Dispatch<SetStateAction<SearchResultItem[]>>; 
+ 
 }
+interface Params {
+  id?: string;
+  [key: string]: string | undefined;
+  name?: string
+}
+
 
 export const SearchBar: React.FC<SearchBarProps> = ({ setResults }) => {
   const [input, setInput] = useState<string>("");
+  const {searchTaskAPI}=useApiService()
+  const { id,name:TaskName } = useParams<Params>();
+const parseListId = id ? parseInt(id, 10) : undefined;
 
-  // const handleChange = (value: string) => {
-  //   setInput(value);
+  const handleChange = (value: string) => {
+    setInput(value);
+    fetchData(value)
+    
+  };
+  
 
-  //   // You can keep any additional filtering logic here if needed
-
-  //   // For example, you can filter a predefined list of users
-  //   const staticUsers = [
-  //     { id: 1, name: "John Doe" },
-  //     { id: 2, name: "Jane Smith" },
-  //     // Add more users as needed
-  //   ];
-
-  //   const results = staticUsers.filter((user) => {
-  //     return (
-  //       value &&
-  //       user &&
-  //       user.name &&
-  //       user.name.toLowerCase().includes(value.toLowerCase())
-  //     );
-  //   });
-
-  //   setResults(results);
-  // };
+  const fetchData = async (value: any) => {
+    try {
+      const results = await searchTaskAPI(parseListId || 0, value);
+      setResults(results);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+  useEffect(() => {
+    fetchData("");
+  }, []);
 
   return (
     <div className="input-wrapper">
       <FaSearch id="search-icon" />
       <input
+      className="searchbar"
         placeholder="Type to search..."
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
       />
     </div>
   );

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Outlet } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { Navigate, Outlet } from 'react-router-dom'
 import Sidebar from '../sidenavbar/Sidebar'
 import styles from '../../styles/layout.module.css'
 
@@ -8,17 +8,36 @@ interface NewList {
   text: string;
 }
 const Layout = () => {
-  const [lists, setLists] = useState<NewList[]>([]);
-  const handleAddList = (newList: NewList) => {
-    setLists((prevLists) => [...prevLists, newList]);
-  };
+  const [authToken, setAuthToken] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const authState = localStorage.getItem("authState");
+    const token = authState ? JSON.parse(authState).accessToken : "";
+    if(token) {
+      setAuthToken(token);
+    }
+    setLoaded(true);
+  }, [])
+  
   return (
-    <div style={{ display: "flex"}}>
-      <Sidebar onAddList={handleAddList} />
-      <div className={styles.right}>
-         <Outlet />
-      </div>
-    </div>
+    <>
+      {
+        (
+          loaded ? (
+            (authToken) ? (
+              <div style={{ display: "flex"}}>
+                <Sidebar/>
+                <div className={styles.right}>
+                  <Outlet />
+                </div>
+              </div>
+              ) : (
+                <Navigate to={"/login"} />
+              )
+          ): null
+        )
+      }
+    </>
   )
 }
 

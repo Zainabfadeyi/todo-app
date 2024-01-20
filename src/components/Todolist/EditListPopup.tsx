@@ -5,6 +5,7 @@ import React, {
    useRef,
    FormEvent,
  } from "react";
+ import { useNavigate } from "react-router-dom";
  import {
    Button,
    Dialog,
@@ -16,8 +17,8 @@ import React, {
  interface EditPopupProps {
    isOpen: boolean;
    onClose: () => void;
-   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  list: NewList | null;
+   updateListAPI: (listId:number , name: string) => Promise<void>;
+   list: NewList | null ;
  }
  interface NewList {
    id: number;
@@ -25,8 +26,8 @@ import React, {
  }
 
  
- export const Popup: React.FC<EditPopupProps> = (
-   { isOpen, onClose, list,onSubmit  },
+ export const EditListPopup: React.FC<EditPopupProps> = (
+   { isOpen, onClose, list,updateListAPI  },
    props
  ) => {
    const [listName, setListName] = useState("");
@@ -39,13 +40,26 @@ import React, {
      if (inputRef.current) {
        inputRef.current.focus();
      }
-   }, []);
+   }, [isOpen]);
 
    useEffect(() => {
     if (list) {
       setListName(list.name);
     }
   }, [list]);
+  const navigate= useNavigate()
+  const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      if (list) {
+        await updateListAPI(list.id, listName);
+        navigate(`/list/${list.id}/${encodeURIComponent(listName)}`);
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error updating list:", error);
+    }
+  };
   
    return (
      <>
@@ -56,7 +70,7 @@ import React, {
          aria-describedby="dialog-description"
        >
          <DialogTitle id="dialog-title">Edit List</DialogTitle>
-         <form onSubmit={(e) => onSubmit(e)}>
+         <form onSubmit={handleSubmit}>
            <input
              placeholder="Edit List"
              type="text"
@@ -114,5 +128,5 @@ import React, {
    );
  };
  
- export default Popup;
+ export default EditListPopup;
  

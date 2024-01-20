@@ -39,6 +39,7 @@ html {
     margin: 0 auto;
     height: 100dvh;
 
+    
 }
 .Reg{
     display: flex;
@@ -80,10 +81,6 @@ html {
   flex-direction: column;
   justify-content: center;
   padding: 30px;
-  /* background-color: rgba(0, 0, 0, 0.4); */
-  /* margin-left: auto; */
-  /* margin-top: 50px; */
-  /* margin-bottom: 50px; */
   border: #ccc 1px solid;
   border-radius: 15px;
 }
@@ -100,11 +97,6 @@ form {
     justify-content: space-evenly;
     flex-grow: 1;
 }
-
-a, a:visited {
-    color: #fff;
-}
-
 .inputReg[type="text"],
 .inputReg[type="password"],
 .inputReg[type="email"],
@@ -117,6 +109,7 @@ textarea {
   border: 1px solid #ccc;
   font-size: 16px;
   height: 40px;
+  
 }
 
 .RegLabel{

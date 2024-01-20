@@ -5,7 +5,8 @@
    border-radius: 10px;
    border: 1px solid #bbb;
    position: absolute;
-   top: 30;
+   top: 30px;
+   right: 0;
    overflow: hidden;
    cursor: pointer;
   
@@ -14,10 +15,12 @@
 .taskMoreButtons{
    border: none;
    padding: 5px;
-   background-color: white;
+   background-color: transparent;
    border-radius: none;
-   width: 100%;
    cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   font-size: 20px;
 }
 
 .itemDropdownmore {
@@ -37,7 +40,9 @@
 }
 .TaskIcon{
    display: flex;
-   width: 100%;
+   
+   position: relative;
+   align-items: center;
 }
 
 

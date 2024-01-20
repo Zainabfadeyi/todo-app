@@ -24,15 +24,7 @@ interface NewList {
   id: number;
   name: string;
 }
-// const handleSubmitLogic = (
-//   listName: string,
-//   onSubmit: (nlist: NewList) => void
-// ) => {
-//   onSubmit({
-//     id: Math.floor(Math.random() * 10000),
-//     text: listName,
-//   });
-// };
+
 
 export const Popup: React.FC<PopupProps> = (
   { isOpen, onClose, onSubmit,createListAPI },
@@ -52,10 +44,6 @@ export const Popup: React.FC<PopupProps> = (
   
 
   const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
-    // e.preventDefault();
-    // handleSubmitLogic(listName, onSubmit);
-    // setListName("");
-    // onClose(); 
     e.preventDefault();
     try {
       await createListAPI(listName);
@@ -76,7 +64,7 @@ export const Popup: React.FC<PopupProps> = (
     setNewLists((prevLists) => [...prevLists, nlist]);
   };
   useEffect(() => {
-    console.log("Popup isOpen:", isOpen);
+ 
     if (isOpen) {
       setNewLists([]);
     }

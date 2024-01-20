@@ -7,9 +7,10 @@ import styles from "../../styles/ListOnHover.module.css"
 
 interface ListOnHoverProps {
   onEdit: () => void;
+  onDelete: () => void; 
 }
 
-const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit }) => {
+const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit, onDelete }) => {
    const [showMoreOptions, setShowMoreOptions] = useState(false);
    const TaskDropdownRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -31,7 +32,6 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit }) => {
 
   return (
    <>
-    <div  >
       <div className={styles.TaskIcon} ref={TaskDropdownRef}>
       <button
          onClick={() => setShowMoreOptions(!showMoreOptions)}
@@ -39,8 +39,8 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit }) => {
          >
          <IoMdMore />
       </button>
-      </div>
-         {showMoreOptions &&(
+
+      {showMoreOptions &&(
                <div className={styles.dropdownmore}>
                      <div className={styles.itemDropdownmore} onClick={onEdit}>
                      <AiOutlineEdit />
@@ -55,12 +55,13 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit }) => {
                      <div
                      style={{ color: "red" }}
                      className={styles.itemDropdownmore}
+                     onClick={onDelete}
                      >
                      <RiDeleteBin5Line />
                      <p>Delete</p>
                      </div>
             </div>)}
-         </div>
+      </div>
     </>
   )
 }

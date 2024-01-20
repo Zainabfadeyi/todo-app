@@ -6,7 +6,6 @@ import React, {
   FormEvent,
 } from "react";
 import "../../styles/RegStyle.css";
-// import AuthContext from "./context/AuthProvider";
 import axios from '../../api/axios';
 import {Link} from "react-router-dom"
 import { FaFingerprint } from "react-icons/fa";
@@ -17,7 +16,6 @@ import { login } from '../../app/slices/authSlice';
 const LOGIN_URL = "/api/v1/auth/login";
 
 const Login: React.FC = () => {
-  // const { setAuth } = useContext(AuthContext);
   const userRef = useRef<HTMLInputElement>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
 
@@ -31,15 +29,15 @@ const Login: React.FC = () => {
     if (userRef.current) userRef.current.focus();
   }, []);
 
-
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
 useEffect(() => {
-  console.log('Current Authentication State:', isAuthenticated);
 }, [isAuthenticated]);
 
   useEffect(() => {
     setErrMsg("");
   }, [email, pwd]);
+  const [customMessage, setCustomMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,6 +56,9 @@ useEffect(() => {
           setEmail("");
           setPwd("");
           setSuccess(true);
+          setCustomMessage('Login successful!, You are logged in. Redirecting...');
+      setTimeout(() => {
+        window.location.href = '/inbox';}, 2000)
          
           const userDetailsResponse = await axios.get('/api/v1/user/details', {
             headers: { Authorization: `Bearer ${response?.data?.accessToken}` },
@@ -67,7 +68,6 @@ useEffect(() => {
           dispatch(login({...userDetails,accessToken}));
           dispatch(setUser(userDetails));
     } catch (err  : any) {
-      console.log(err, "==errr==")
         if (!err?.response) {
             setErrMsg('No Server Response');
         } else if (err.response?.status === 400) {
@@ -86,13 +86,9 @@ useEffect(() => {
     < >
     
       <div className="Login">
-
-        {success ? (
-          <section className="suggest">
-            <h1>You are logged in!</h1>
-            <span className="line">
-              <a href="./dashboard">Go to Dashboard</a>
-            </span>
+        {customMessage ? (
+          <section className="sectionReg">
+            <h1>{customMessage}</h1>
           </section>
         ) : (
           <div className="RegContainer">
@@ -137,6 +133,15 @@ useEffect(() => {
                 value={pwd}
                 required
               />
+              <div style={{display:"flex", justifyContent:"right"}}>
+                  <a
+                      href="/forgotPassword"
+                      onClick={() => setShowForgotPassword(true)}
+                    >
+                      Forgot Password?
+                    </a>
+              </div>
+
               <button type="submit" className="buttonReg" >Sign In</button>
             </form>
             <p className="suggest">
@@ -144,7 +149,9 @@ useEffect(() => {
               <span className="line">
                 <a href="./register">Sign Up</a>
               </span>
+               
             </p>
+            
           </section>
           </div>
         )}
@@ -152,6 +159,17 @@ useEffect(() => {
         <div className="ImgContainer">
             <img src="public/images/svg-11.svg"  className="RegImage" />
         </div>
+
+        {/* {showForgotPassword && (
+        <div>
+          <button onClick={() => setShowForgotPassword(false)}>
+            Close Forgot Password
+          </button>
+          <ForgotPassword />
+        </div>
+      )} */}
+
+
 
       </div>
     </>

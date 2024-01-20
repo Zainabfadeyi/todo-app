@@ -5,21 +5,28 @@ import { MdInbox, MdExpandMore  } from "react-icons/md";
 
 
 interface TaskFormProps {
-  onSubmit: (task: Task) => void;
+  onSubmit:(task: Task, listId: number | undefined) => void
   onCancel: () => void;
+  listId?:number|undefined
+  handleChange: (field: keyof Task, value: string) => void;
+  handleCustomDateChange: (value: string) => void;
+  handleTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleReminderChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface Task {
-  id: number;
+  id?:number
   title: string;
   description: string;
   priority: string;
   dueDate: string;
   dueTime: string;
   reminder: string;
+  completed:boolean;
+  
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
   const [showBorder, setShowBorder] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
@@ -34,13 +41,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   };
 
   const [task, setTask] = useState<Task>({
-    id: 0,
     title: '',
     description: '',
-    priority: '',
+    priority: 'LOW',
     dueDate: '',
     dueTime: '',
     reminder: '',
+    completed:false
+    
   });
 
   const handleChange = (field: keyof Task, value: string) => {
@@ -77,7 +85,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
       default:
         newDate = today;
     }
-    console.log("sdfasdfasdfsdfsdfsdf", newDate);
+    
     setTask((prevTask) => ({
       ...prevTask,
       dueDate: newDate,
@@ -97,33 +105,30 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   const handleReminderChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleChange('reminder', e.target.value);
   };
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit({
-      id: Math.floor(Math.random() * 10000),
-      title: task.title,
-      description: task.description,
-      priority: task.priority,
-      dueDate: task.dueDate,
-      dueTime: task.dueTime,
-      reminder: task.reminder,
-    });
-    setTask({
-      id: 0,
-      title: '',
-      description: '',
-      priority: '',
-      dueDate: '',
-      dueTime: '',
-      reminder: '',
-    });
+
+    try {
+      console.log('Submitting task:', task, 'with listId:', listId);
+      setIsSubmitting(true);
+
+      console.log("Submitting task:", task, "with listId:", listId);
+      onSubmit(task,listId);
+    } catch (error) {
+      console.error("Error submitting task:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
   const today = new Date().toISOString().split('T')[0];
   const todayDate = new Date();
   useEffect(() => {
-    console.log(task)
   }, [task])
+
+  
   
   return (
     <>
@@ -163,10 +168,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
                 onChange={(e) => handleChange('priority', e.target.value)}
                 className={styles.taskselect}
               >
-                <option value="">Select...</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
 
               </select>
             </div>
@@ -198,23 +202,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
             </div>
         </div>
         <div className={styles.footer}>
-          <div className={styles.Listform}>
-            <div className={styles.inboxWrapper}>
-          
-          <button type="button" className={styles.inboxButton}>
-            <span className={styles.inboxSpan}>
-              <div className={styles.info}>
-                  <MdInbox />
-                      <span>
-                          inbox
-                      </span>
-                  <MdExpandMore />
-              </div>
-              </span>
-            </button>
-            
-            </div>
-          </div>
           <div className={styles.TaskButtonform}>
             <button type="button" onClick={() => onCancel()}
             className={styles.controlBtnClose}>

@@ -1,71 +1,70 @@
-import React, {useState, useRef, useEffect} from 'react'
+import React, {useState, useRef, useEffect, ChangeEvent} from 'react'
 import  styles from "../styles/today.module.css"
 import { MdCheck, MdSort } from "react-icons/md";
 import { IoIosCheckmark, IoIosSearch, IoMdMore } from "react-icons/io";
-import TaskOnHover from "../components/Task/TaskOnHover";
-import TaskInfo from "../components/Task/TaskInfo";
-import Tasksform from "../components/Task/Tasksform";
-import { Task } from './ListDetailPage';
+import { Task } from '../api/createTaskApi';
+import { useFilterService } from '../api/apiFilterService';
+import {sortFilterTaskService} from "../api/sortFilterService"
+import { RootState } from "../app/store";
+import {  useSelector } from "react-redux";
+import FilterOnHover from '../components/Task/FilterOnHover';
+import { useApiService } from '../api/apiService';
+import DeleteTaskPopup from '../components/Task/DeleteTaskPopup';
+import FilterInfo from '../components/Task/FilterInfo';
 
-interface TodayProps {
-  tasks: Task[];
-}
+type SortType = "id" | "priority" | "title";
 
-type SortType = "due" | "priority" | "title";
-const Today: React.FC<{ tasks: Task[] }> = () => { {
-  const [isVisible, setIsVisible] = useState(true);
+const Today: React.FC = () => { 
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
-  const [sort, setSort] = useState<SortType>("due");
-  const [contentAdded, setContentAdded] = useState(false);
+  const [sort, setSort] = useState<SortType>("id");
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [showButtons, setShowButtons] = useState(true);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
-  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const handleSortChange = (selectedSort: SortType) => {
-    setSort(selectedSort);
-    setShowSort(false);
-  };
-  const openPopup = () => {
-    setIsPopupOpen(true);
-    setShowButtons(false);
-  };
-  const closePopup = () => {
-    setIsPopupOpen(false);
-    setShowButtons(true);
-  };
+  const [isDeleteTaskPopupOpen, setIsDeleteTaskPopupOpen] = useState(false);
+  const [todayTasks, setTodayTasks] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true);
+  const { archiveTaskAPI,deleteTaskByIdAPI,getTaskDetailsAPI,updateTaskByIdAPI } = useApiService();
+  const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>();
+  const [updatedTaskDetails, setUpdatedTaskDetails] = useState<Task | undefined>(undefined);
+  const closeDeleteTaskPopup=()=>{
+    setIsDeleteTaskPopupOpen(false)
+  }
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
 
-  const openDeletePopup = () => {
-    setIsDeletePopupOpen(true);
-    setShowButtons(false);
-  };
-  const closeDeletePopup = () => {
-    setIsDeletePopupOpen(false);
-    setShowButtons(true);
-  };
+ 
 
   
-  const closeEditPopup = () => {
-    setIsEditPopupOpen(false);
-  };
-  
-  const closeMoreOptions = () => {
-    setShowMoreOptions(false);
-  };
-  const handleOnSubmit = (task: Task) => {
-    console.log("New task submitted:", task);
-    setTasks((prevTasks) => [...prevTasks, task]);
-    setChecked(false); // Reset checked state
-    setShowModal(false); // Reset showModal state
-    setEditingTask(null); // Reset editingTask state
+    const fetchSortTasks = async () => {
+      console.log(sort);
+      try {
+        const sortedTasks = await sortFilterTaskService(accessToken,sort, userId);
+        setTodayTasks(sortedTasks);
+        console.log(sortedTasks)
+      } catch (error) {
+        console.error('Error fetching sorted tasks:', error);
+      }
 
-    closePopup();
-  };
+    };
+
+    const handleSortChange = (selectedSort: SortType) => {
+      setSort(selectedSort);
+      setShowSort(false);
+      localStorage.setItem('sort', selectedSort);
+    };
+
+  useEffect(() => {
+    const savedSort = localStorage.getItem('sort');
+    if (savedSort) {
+      setSort(savedSort as SortType);
+    }
+    if (accessToken && sort){
+      fetchSortTasks();
+    }
+    
+  }, [ sort])
+  
 
   const sortDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -87,11 +86,158 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
   }, []);
   const onHoverSort = () => setHoverSort(true);
   const onLeaveSort = () => setHoverSort(false);
-  const addContent = () => {
-    // Add your logic here to add content
-    // For now, let's just set contentAdded to true
-    setContentAdded(true);
+ 
+  const handleChange = (field: keyof Task, value: string) => {
+    setEditingTask((prevTask) => ({
+      ...(prevTask as Task), 
+      [field]: value,
+    }));
   };
+
+  const handleCustomDateChange = (value: string) => {
+    setEditingTask((prevTask: Task | null) => ({
+      ...(prevTask as Task),
+      dueDate: value,
+    }));
+  };
+
+
+  
+  const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleChange('dueTime', e.target.value);
+  };
+
+  const handleReminderChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleChange('reminder', e.target.value);
+  };
+  const handleTaskDeleteClick = (task: Task) => {
+    setIsDeleteTaskPopupOpen(true);
+    setEditingTask(task);
+  };
+  const handleTaskEditClick = (task: Task) => {
+    setShowModal(true)
+    setEditingTask(task)
+    
+  };
+  const { filterTodayTasksAPI } = useFilterService();
+
+  useEffect(() => {
+    const fetchTodayTasks = async () => {
+      try {
+        const fetchedTasks = await filterTodayTasksAPI();
+        setTodayTasks(fetchedTasks)
+        setLoading(false); 
+      } catch (error) {
+        console.error('Error fetching today tasks:', error);
+        fetchTodayTasks();
+      }
+    };
+
+    fetchTodayTasks();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+  
+
+  const handleArchivedTask = async (task:Task) => {
+    if (task && task.id) {
+      archiveTaskAPI(task.id)
+        .then(async () => {
+          const fetchedTasks = await filterTodayTasksAPI();
+          setTodayTasks(fetchedTasks)
+        setLoading(false); 
+        })
+        .catch((error) => {
+          console.error("Error deleting task:", error);
+        });
+    }
+  };
+  const handleDeleteTask = () => {
+    if (editingTask && editingTask.id) {
+      deleteTaskByIdAPI(editingTask.id)
+        .then(() => {
+          setTodayTasks((prevTasks) => prevTasks.filter((t) => t.id !== editingTask?.id));
+          setIsDeleteTaskPopupOpen(false);
+        })
+        .catch((error) => {
+          console.error("Error deleting task:", error);
+        });
+    }
+  };
+  const handleSpecificTask = async (taskId: number|undefined) => {
+    setShowModal(true);
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+
+       const fetchedTasks = await filterTodayTasksAPI();
+        setTodayTasks(fetchedTasks);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+  };
+  const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
+    setUpdatedTaskDetails(updatedDetails);
+  }
+  const handleEditTask = async(taskId: number|undefined) => {
+    try {
+      console.log('Clicked on task with ID:', taskId);
+      const response = await getTaskDetailsAPI(taskId);
+      setSelectedTaskDetails(response);
+       onUpdateTaskDetails(response);
+      const fetchedTasks = await filterTodayTasksAPI();
+      setTodayTasks(fetchedTasks);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching task details:", error);
+    }
+    
+  };
+  
+ 
+ const updateTask = async () => {
+  try {
+    if (!updatedTaskDetails?.id) {
+      console.error("List ID or Task ID is undefined");
+      return;
+    }
+  
+    const updatedTaskCopy: Task = {
+      id: updatedTaskDetails.id,
+      title: updatedTaskDetails.title || "",
+      description: updatedTaskDetails.description || "",
+      dueDate: updatedTaskDetails.dueDate || "",
+      dueTime: updatedTaskDetails.dueTime || "",
+      reminder: updatedTaskDetails.reminder || "",
+      priority: updatedTaskDetails.priority || "low",
+      completed: updatedTaskDetails.completed || false,
+      archived: updatedTaskDetails.archived || false,
+    };
+
+    await updateTaskByIdAPI( updatedTaskDetails.id, updatedTaskCopy);
+
+    setTodayTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === updatedTaskDetails.id ? updatedTaskCopy : task
+      )
+    );
+    setUpdatedTaskDetails(undefined);
+  } catch (error) {
+    console.error("Error updating task:", error);
+  }
+};
+
+if (updatedTaskDetails) {
+  updateTask();
+}
+
+
+
   return (
     <>
     <div  className={styles.container}>
@@ -122,18 +268,19 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
                     <div className={styles.dropdown}>
                       <div
                         className={styles.itemDropdown}
+                        onClick={() => handleSortChange("id")}
+                      >
+                        <p>None(Default)</p>
+                        {sort === "id" && <MdCheck />}
+                      </div>
+                      <div
+                        className={styles.itemDropdown}
                         onClick={() => handleSortChange("title")}
                       >
                         <p>Title</p>
                         {sort === "title" && <MdCheck />}
                       </div>
-                      <div
-                        className={styles.itemDropdown}
-                        onClick={() => handleSortChange("due")}
-                      >
-                        <p>Due date</p>
-                        {sort === "due" && <MdCheck />}
-                      </div>
+                     
                       <div
                         className={styles.itemDropdown}
                         onClick={() => handleSortChange("priority")}
@@ -149,26 +296,23 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
           </header>
         </div>
         <hr />
-        {contentAdded ? (
+        {todayTasks.length > 0 ? (
           <div className={styles.text}>
             <div style={{ textAlign: "left" }} className={styles.taskText}>
-            {tasks.map((task, index) => (
+            {todayTasks.map((task, index) => (
               <>
               <div key={index} className={styles.properties}>
                 <button
                   onClick={() => setChecked(!checked)}
                   className={styles.propertiesButton}
-                  style={{ borderColor: task.priority === "Low" ? "green" : task.priority === "Medium" ? "orange" : task.priority === "Medium" ? "orange" : task.priority=== "High" ? "red": "none" }}
+                  style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange": task.priority=== "HIGH" ? "red": "none" }}
                 >
-                  {checked && <IoIosCheckmark color={task.priority === "Low" ? "green" : task.priority === "Medium" ? "orange" : task.priority=== "High" ? "red" : "none"} />}
+                  {checked && <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority=== "HIGH" ? "red" : "none"} />}
                 </button>
                 <div className={styles.Content}>
                   <div
                     className={styles.Taskprops}
-                    onClick={() => {
-                      setShowModal(true);
-                      setEditingTask(task);
-                    }}
+                    onClick={() => handleSpecificTask(task.id)}
                   >
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
@@ -176,28 +320,26 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
-                  <TaskOnHover />
+                  <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)} onTaskEdit={()=> handleEditTask(task.id)}/>
                 </div>
               </div>
-                {showModal && (
-                    <TaskInfo
+
+              {showModal && (
+                    <FilterInfo
                       setShowModal={setShowModal}
-                    />
-                  )}
+                      handleSpecificTask={handleSpecificTask}
+                      taskId={task.id}
+                      task={selectedTaskDetails || undefined}
+                      taskDetails={selectedTaskDetails}
+                      onUpdateTaskDetails={(updatedDetails:Task|undefined) =>
+                        setUpdatedTaskDetails(updatedDetails)
+                      }
+      
+                  />
+                )}
               </>
             ))}
           </div>
-          <div
-            className={styles.addTask}
-            style={{ display: showButtons ? "flex" : "none" }}
-          >
-            <button className={styles.taskButton} onClick={openPopup}>
-              + Add Task
-            </button>
-          </div>
-          {isPopupOpen && (
-            <Tasksform onCancel={closePopup} onSubmit={handleOnSubmit} />
-          )}
         </div>
         ):(
         <div className={styles.image}>
@@ -213,11 +355,19 @@ const Today: React.FC<{ tasks: Task[] }> = () => { {
         </div>
         )}
       </div>
+      <DeleteTaskPopup
+        isOpen={isDeleteTaskPopupOpen}
+        onClose={closeDeleteTaskPopup}
+        onDeleteTask={handleDeleteTask}
+        deleteTaskAPI={deleteTaskByIdAPI}
+        taskId={editingTask?.id || 0}
+        taskName={editingTask?.title|| ""}
+        
+        />
     </div>
-    <button onClick={addContent}>Add Content</button>
+    
     </>
-  )
-  }
+  );
 }
 
 export default Today

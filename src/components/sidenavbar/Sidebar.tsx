@@ -4,25 +4,28 @@ import { SidebarData, SidebarDataButton, SidebarDataList } from "./SidebarData";
 import "../../styles/sidebarStyle.css";
 import { FaBars } from "react-icons/fa";
 import { Popup } from "../Todolist/Popup";
+import { useDispatch, useSelector } from "react-redux";
+import axios from '../../api/axios';
+import { RootState } from "../../app/store";
+import { IoIosLogOut } from "react-icons/io";
+import { logout } from '../../app/slices/authSlice';
+import { clearUser } from '../../app/slices/user.slice';
 
-import { Container, Sidenav } from "rsuite";
 
 interface NewList {
   id: number;
-  text: string;
+  name: string;
 }
 
-interface SidebarProps {
-  onAddList: (newList: NewList) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ onAddList }) => {
+const Sidebar: React.FC= () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isActive, setIsActive] = useState(false);
   const [hover, setHover] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [listName, setListName] = useState("");
+  const [lists, setLists] = useState<NewList[]>([]);
 
   const toggle = () => setIsOpen(!isOpen);
   const onHover = () => setHover(true);
@@ -36,11 +39,87 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddList }) => {
     setIsPopupOpen(false);
   };
 
-  const handleSubmit = (newList: NewList) => {
-    onAddList(newList);
-    closePopup();
-    navigate(`/list/${newList.id}/${encodeURIComponent(newList.text)}`);
+  // const handleSubmit = (newList: NewList) => {
+  //   onAddList(newList);
+
+  //   closePopup();
+  //   navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
+  // };
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  const firstName = useSelector((state: RootState) => state.auth.user?.firstName);
+  const lastName = useSelector((state: RootState) => state.auth.user?.lastName);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+
+  const handleSubmit = async (newList: NewList) => {
+   
+    
+    if (!newList.name || /^\s*$/.test(newList.name)) {
+      return;
+    }
+    try {
+      await createListAPI(newList.name);
+      closePopup();
+    } catch (error) {
+      console.error("Error creating list:", error);
+    }
+    
   };
+  const createListAPI = async (name: string) => {
+    try {
+      if (!isAuthenticated || !userId ) {
+        console.error("User is not authenticated");
+        return;
+      }
+
+      const apiUrl = `/api/v1/list/${userId}`;
+      
+
+      const response = await axios.post(
+        apiUrl,
+        { name: name },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      
+      
+      const newList = { id: response.data.id, name: response.data.name };
+      
+      setLists((prevLists) => [...prevLists, newList]);
+      
+      navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
+    } catch (error) {
+      console.error("Error creating list:", error);
+    }
+  };
+  useEffect(() => {
+    const fetchLists = async () => {
+      try {
+        if (!isAuthenticated || !userId) {
+          console.error("User is not authenticated");
+          return;
+        }
+
+        const apiUrl = `/api/v1/list/all/${userId}`;
+
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const fetchedLists = response.data;
+        setLists(fetchedLists);
+      } catch (error) {
+        console.error("Error fetching lists:", error);
+      }
+    };
+    fetchLists();
+  }, [isAuthenticated, userId, accessToken]);
+
 
   const handleLinkClick = () => {
     setIsActive(!isActive);
@@ -58,14 +137,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddList }) => {
     };
   }, []);
 
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+
+    dispatch(logout());
+    dispatch(clearUser());
+
+    navigate("/login")
+  };
   return (
     <>
       <div className={`nav ${isOpen ? "" : "sidebar-closed"}`}>
         <div style={{ width: isOpen ? "220px" : "50px" }} className="sidebar">
           <div className="top_section">
-            <h1 style={{ display: isOpen ? "block" : "none" }} className="logo">
-              Todo
-            </h1>
+            <div className="placeholder" >
+              <img src={`https://ui-avatars.com/api/?background=f00&color=fff&name=${firstName}+${lastName}`} alt=""  
+              style={{borderRadius:"50%",height:"25px"}}/>
+              <p style={{ display: isOpen ? "block" : "none" }} className="logo">
+                {firstName}
+              </p>
+            </div>
             <div
               style={{ marginLeft: isOpen ? "85px" : "0px" }}
               className="bars"
@@ -126,12 +217,29 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddList }) => {
               </div>
             </div>
           ))}
+        
+        {isOpen && (
+        <div className="logout" onClick={handleLogout}>
+
+            <IoIosLogOut style={{ color: "red", fontSize: "17px" }} />
+          
+          <button className="logout-button" >
+            Log out
+        </button>
         </div>
+        )}
+        </div>
+        
+        <div>
+        
+        </div>
+        
       </div>
       <Popup
         isOpen={isPopupOpen}
         onClose={closePopup}
         onSubmit={handleSubmit}
+        createListAPI={createListAPI}
       />
     </>
   );

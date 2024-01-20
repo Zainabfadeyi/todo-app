@@ -64,6 +64,8 @@ const Register: React.FC = () => {
     setErrMsg('');
   }, [ firstName, lastName, email, pwd, matchPwd,]);
 
+  const [customMessage, setCustomMessage] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -73,7 +75,6 @@ const Register: React.FC = () => {
             setErrMsg("Invalid Entry");
             return;
         }
-        console.log(JSON.stringify({ firstName, lastName, email, password: pwd, role }));
 
         try {
             const response = await axios.post(REGISTER_URL,
@@ -84,8 +85,6 @@ const Register: React.FC = () => {
                     withCredentials: true
                 }
             );
-            console.log(response);
-            console.log(response?.data);
             setSuccess(true);
 
             setFirstName('');
@@ -94,6 +93,10 @@ const Register: React.FC = () => {
             setPwd('');
             setMatchPwd('');
             setRole('USER');
+
+            setCustomMessage('Registration successful! Redirecting to login page...');
+      setTimeout(() => {
+        window.location.href = '/login';}, 2000)
           } catch (err:any) {
             console.error(err.response.status, err.response.data);
             if (!err?.response) {
@@ -110,12 +113,9 @@ const Register: React.FC = () => {
   return (
     <>
       <div className="Reg">
-        {success ? (
+        {customMessage ? (
           <section className="sectionReg">
-            <h1>Success!</h1>
-            <p>
-              <a href="#">Sign In</a>
-            </p>
+            <h1>{customMessage}</h1>
           </section>
         ) : (
           <div className="RegContainer">
@@ -284,8 +284,9 @@ const Register: React.FC = () => {
 
 
                 <button
-                  disabled={!validName || !validEmail || !validPwd || !validMatch}
+                  disabled={ !validEmail || !validPwd || !validMatch}
                   className="buttonReg"
+                  type="submit"
                 >
                   Sign Up
                 </button>
