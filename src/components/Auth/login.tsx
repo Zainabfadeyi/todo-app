@@ -157,7 +157,7 @@ useEffect(() => {
         )}
 
         <div className="ImgContainer">
-            <img src="public/images/svg-11.svg"  className="RegImage" />
+            <img src="images/svg-11.svg"  className="RegImage" />
         </div>
 
         {/* {showForgotPassword && (

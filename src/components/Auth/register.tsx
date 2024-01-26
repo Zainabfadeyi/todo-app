@@ -301,7 +301,7 @@ const Register: React.FC = () => {
           </div>
         )}
         <div className="ImgContainer">
-          <img src="public/images/svg-9.svg" alt="" className="RegImage" />
+          <img src="images/svg-9.svg" alt="" className="RegImage" />
         </div>
       </div>
     </>
