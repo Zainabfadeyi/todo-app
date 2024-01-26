@@ -49,7 +49,7 @@ const Layout = () => {
   };
   const resetTimer = () => {
 
-    setCountdown(6089);
+    setCountdown(60);
   };
 
   const handleLogout = () => {
