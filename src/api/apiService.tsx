@@ -165,38 +165,7 @@ export const useApiService = () => {
       console.error("Error deleting task:", error);
     }
   };
-  const updateListAPI = async (parseListId:number , name:string) => {
-    try {
-      if (!userId || !parseListId) {
-        console.error("User ID or List ID is undefined");
-        return;
-      }
   
-      const apiUrl = `/api/v1/list/${userId}/${parseListId}`;
-      const response = await axios.put(
-        apiUrl,
-        { name: name, id: parseListId },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-  
-      console.log("API Response:", response);
-  
-      const updatedListsResponse = await axios.get(`/api/v1/list/all/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-  
-      const updatedLists = updatedListsResponse.data;
-    } catch (error) {
-      console.error("Error updating list:", error);
-    }
-  };
-
   const getTaskDetailsAPI = async (taskId:number|undefined) => {
     try {
     
@@ -317,7 +286,6 @@ export const useApiService = () => {
     deleteListAPI,
     deleteAllTaskAPI,
     deleteTaskAPI,
-    updateListAPI,
     getTaskDetailsAPI,
     updateTaskAPI,
     updateTaskByIdAPI,

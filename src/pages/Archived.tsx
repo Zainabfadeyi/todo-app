@@ -22,7 +22,7 @@ interface Params {
 type SortType = "id"| "dueDate" | "priority" | "title";
 
 const Archived:  React.FC = () => { 
-  const { unArchiveTaskAPI,deleteTaskByIdAPI, getTaskDetailsAPI,updateTaskByIdAPI, updateTaskCompletionAPI } = useApiService();
+  const { unArchiveTaskAPI,deleteTaskByIdAPI, getTaskDetailsAPI,updateTaskByIdAPI, updateTaskCompletionByIdAPI } = useApiService();
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
@@ -218,6 +218,10 @@ const Archived:  React.FC = () => {
       )
     );
     setUpdatedTaskDetails(undefined);
+    const fetchedTasks = await filterArchivedTasksAPI();
+        setArchivedTasks(fetchedTasks);
+        const sortedTasks = await sortArchiveFilterService(accessToken,sort, userId);
+        setArchivedTasks(sortedTasks);
   } catch (error) {
     console.error("Error updating task:", error);
   }
@@ -232,13 +236,13 @@ const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
 
 const handleTaskCompletionToggle = async (index: number) => {
   try {
-    const taskToUpdate = tasks[index];
+    const taskToUpdate = ArchivedTasks[index];
     if (!taskToUpdate || taskToUpdate.id === undefined) {
       console.error('Task or task id is undefined');
       return;
     }
 
-    const updatedTasks = tasks.map((task, i) => {
+    const updatedTasks = ArchivedTasks.map((task, i) => {
       if (i === index) {
         task.completed = !task.completed;
       }
@@ -252,12 +256,23 @@ const handleTaskCompletionToggle = async (index: number) => {
       return;
     }
 
-    const apiResponse = await updateTaskCompletionAPI(parseListId, taskToUpdate.id, taskToUpdate.completed, accessToken);
+    const apiResponse = await updateTaskCompletionByIdAPI( taskToUpdate.id, taskToUpdate.completed, accessToken);
 
   } catch (error) {
     console.error('Error updating task completion:', error);
   }
 }
+
+const formatDueDate = (dueDate: string) => {
+  const options = {
+    weekday: 'short' as const,
+    month: 'short' as const,
+    day: 'numeric' as const,
+  };
+
+  const formattedDate = new Date(dueDate).toLocaleDateString('en-US', options);
+  return formattedDate.toLowerCase();
+};
   
   return (
     <>
@@ -266,7 +281,7 @@ const handleTaskCompletionToggle = async (index: number) => {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3>Archived</h3>
+            <h2>Archived</h2>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -322,7 +337,7 @@ const handleTaskCompletionToggle = async (index: number) => {
             </div>
           </header>
         </div>
-        <hr />
+      
         {ArchivedTasks.length > 0 ? (
           <div className={styles.text}>
             <div style={{ textAlign: "left" }} className={styles.taskText}>
@@ -332,9 +347,9 @@ const handleTaskCompletionToggle = async (index: number) => {
                  <button
                     onClick={() => handleTaskCompletionToggle(index)}
                     className={styles.propertiesButton}
-                    style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none" }}
+                    style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red" : task.priority === "NONE" ?"#BEBEBE": "none" }}
                   >
-                    {task.completed&& <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none"} />}
+                    {task.completed&& <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red" : task.priority === "NONE" ?"#BEBEBE": "none"} />}
                       </button>
                       <div className={`${styles.Content} ${task.completed ? styles.completedTask : ''}`}>
                       <div className={styles.Content}></div>
@@ -344,13 +359,17 @@ const handleTaskCompletionToggle = async (index: number) => {
                   >
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
-                    <p>{task.dueDate}</p>
+                    <div className={styles.maintain}>
+                    <p>{formatDueDate(task.dueDate)}</p>
+                    <span style={{color:"#B7B7B7"}}>#{task.todoList?.name || "inbox"}</span>
+                    </div>
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
                   <ArchiveOnHover onTaskDelete={() => handleTaskDeleteClick(task)} onTaskUnArchived={() => handleUnArchivedTask(task)} onTaskEdit={() => handleEditTask(task.id)}/>
                 </div>
               </div>
+              <div className={styles.border}></div>
               {showModal && (
                     <FilterInfo
                       setShowModal={setShowModal}

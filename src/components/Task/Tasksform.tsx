@@ -43,7 +43,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
   const [task, setTask] = useState<Task>({
     title: '',
     description: '',
-    priority: 'LOW',
+    priority: 'NONE',
     dueDate: '',
     dueTime: '',
     reminder: '',
@@ -168,6 +168,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel,listId}) => {
                 onChange={(e) => handleChange('priority', e.target.value)}
                 className={styles.taskselect}
               >
+                <option value="NONE">NONE</option>
                 <option value="LOW">LOW</option>
                 <option value="MEDIUM">MEDIUM</option>
                 <option value="HIGH">HIGH</option>

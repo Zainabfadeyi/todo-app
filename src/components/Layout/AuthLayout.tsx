@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from 'react-router-dom'
-import Sidebar from '../sidenavbar/Sidebar'
-import styles from '../../styles/layout.module.css'
+import InactivityTimeout from "../../inactiveness/inactivityTimeout";
+import InactivityWarning from "../../inactiveness/InactivityWarning";
 
-interface NewList {
-  id: number;
-  text: string;
-}
+
 const AuthLayout = () => {
   const [authToken, setAuthToken] = useState("");
   const [loaded, setLoaded] = useState(false);
@@ -26,9 +23,11 @@ const AuthLayout = () => {
         (
           loaded ? (
             (!authToken) ? (
+              <>
               <div>
                   <Outlet />
               </div>
+              </>
               ) : (
                 <Navigate to={"/Login"} />
               )

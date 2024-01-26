@@ -45,9 +45,7 @@
     display: flex;
     column-gap: 5px;
     padding: 10px 8px 8px 8px;
-    /* position: relative; */
     border: 1px solid #ddd;
-    box-shadow: #444;
     border-radius: 10px;
     width: 200%;
     cursor: pointer;

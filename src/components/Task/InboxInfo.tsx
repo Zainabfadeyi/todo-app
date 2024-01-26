@@ -41,7 +41,6 @@ const [reminder, setReminder] = useState<string>("");
   const { id,name:listName } = useParams<Params>();
 const parseListId = id ? parseInt(id, 10) : undefined;
 
-
 useEffect(() => {
   if (taskDetails) {
     setTaskName(taskDetails.title );
@@ -52,6 +51,31 @@ useEffect(() => {
     setSelectedPriority(taskDetails.priority);
   }
 }, [taskDetails]);
+const [fieldsUpdated, setFieldsUpdated] = useState(false);
+
+
+useEffect(() => {
+  if (fieldsUpdated) {
+    const updatedTaskDetails: Task = {
+      id:taskDetails?.id,
+      title: taskName || "",
+      description: description || "",
+      dueDate: dueDate || "",
+      dueTime: dueTime || "",
+      reminder: reminder || "",
+      priority: selectedPriority || "LOW",
+      completed: taskDetails?.completed || false,
+      archived: taskDetails?.archived || false,
+    };
+
+    updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+
+    onUpdateTaskDetails(updatedTaskDetails);
+    setFieldsUpdated(false);
+  }
+}, [fieldsUpdated, taskDetails]);
+
+
 
 
 const handleSave = async () => {
@@ -70,8 +94,8 @@ const handleSave = async () => {
     };
 
     onUpdateTaskDetails(updatedTaskDetails);
-    console.log(updatedTaskDetails)
-    setShowModal(false);
+    
+    setShowBorder(false)
   } catch (error) {
     console.error("Error updating task:", error);
   }
@@ -95,7 +119,6 @@ const updateTaskDueDate = async (newDueDate: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -123,8 +146,7 @@ const updateTaskDueTime = async (newDueTime: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
-
+   
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
     console.error("Error updating due time:", error);
@@ -150,8 +172,6 @@ const updateTaskReminder = async (newReminder: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
-
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
     console.error("Error updating reminder:", error);
@@ -176,8 +196,6 @@ const updateTaskPriority = async (newPriority: string) => {
       completed: taskDetails.completed || false,
       archived: taskDetails.archived || false,
     };
-
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
     console.log(updatedTaskDetails)
 
 
@@ -191,22 +209,22 @@ const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newDueDate = e.target.value;
   setDueDate(newDueDate);
   updateTaskDueDate(newDueDate);
+  setFieldsUpdated(true);
 };
 
 const handleDueTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newDueTime = e.target.value;
   setDueTime(newDueTime);
   updateTaskDueTime(newDueTime);
+  setFieldsUpdated(true);
 };
 
 const handleReminderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newReminder = e.target.value;
   setReminder(newReminder);
   updateTaskReminder(newReminder);
+  setFieldsUpdated(true);
 };
-
-
-
 
 
 const handlePriorityChange = (
@@ -215,11 +233,9 @@ const handlePriorityChange = (
   const newPriority = event.target.value;
   setSelectedPriority(newPriority);
   updateTaskPriority(newPriority);
+  setFieldsUpdated(true);
   console.log(newPriority)
-};
-
-  
-  
+};  
   return (
     <>
       <div className={styles.modalWrapper}>
@@ -241,7 +257,7 @@ const handlePriorityChange = (
                     className={styles.propertiesButton}
                     style={{ borderColor: task?.priority === "LOW" ? "green" : task?.priority === "MEDIUM" ? "orange" : task?.priority === "HIGH" ?"red": "none" }}
                   >
-                    {task?.completed&& <IoIosCheckmark color={task?.priority === "LOW" ? "green" : task?.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none"} />}
+                    {task?.completed&& <IoIosCheckmark color={task?.priority === "LOW" ? "green" : task?.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none" }  />}
                 </button>
               </div>
               <div
@@ -300,7 +316,7 @@ const handlePriorityChange = (
                   // onChange={(e) => setSelectedPriority(e.target.value)}
                   onChange={handlePriorityChange}
                 >
-
+                  <option value="NONE">NONE</option>
                   <option value="LOW">LOW</option>
                   <option value="MEDIUM">MEDIUM</option>
                   <option value="HIGH">HIGH</option>

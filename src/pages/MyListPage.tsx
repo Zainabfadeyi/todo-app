@@ -6,7 +6,7 @@ import React, { useState,useEffect,FormEvent } from "react";
 import { useNavigate, Link  } from "react-router-dom";
 import axios from '../api/axios';
 import { RootState } from "../app/store";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import ListOnHover from "../components/Todolist/ListOnHover";
 
 
@@ -157,6 +157,7 @@ const [selectedList, setSelectedList] = useState<NewList | null>(null);
 
 const handleEditClick = (list: NewList) => {
   setSelectedList(list);
+  console.log(list)
   setIsEditPopupOpen(true);
 };
 

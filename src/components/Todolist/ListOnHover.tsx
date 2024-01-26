@@ -46,11 +46,7 @@ const ListOnHover : React.FC<ListOnHoverProps> = ({ onEdit, onDelete }) => {
                      <AiOutlineEdit />
                      <p>Edit</p>
                      </div>
-                     <hr  className={styles.linebreak}/>
-                     <div className={styles.itemDropdownmore}>
-                     <IoMdArchive />
-                     <p>Archive</p>
-                     </div>
+                    
                      <hr className={styles.linebreak}/>
                      <div
                      style={{ color: "red" }}

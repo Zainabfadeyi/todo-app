@@ -12,8 +12,7 @@
    display: inline-flex;
    align-items: center;
    justify-content: center;
-   /* margin-top: 5px; */
-   font-size: 14px;
+   font-size: 18px;
 }
 .dropdownmore {
    width: 150px;

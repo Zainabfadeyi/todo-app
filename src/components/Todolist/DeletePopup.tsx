@@ -51,11 +51,7 @@ export const DeletePopup: React.FC<PopupTaskProps> = ({
         onClose={onClose}
         aria-labelledby="dialog-title"
         aria-describedby="dialog-description"
-    //     style={{
-    //    borderRadius:"30px",
-    //   boxSizing:"border-box",
-    //   width:"100%"
-    // }}
+   
       >
         <DialogTitle
           id="dialog-title"

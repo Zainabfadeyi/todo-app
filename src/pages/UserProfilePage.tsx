@@ -16,11 +16,7 @@ const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const UserProfileForm: React.FC = () => {
   const {changeEmailAPI,changePasswordAPI,deleteAccountAPI}= userFormService()
   const user = useSelector((state: RootState) => state.auth.user);
-  // const [userProfile, setUserProfile] = useState<UserProfile>({
-  //   firstname: '',
-  //   lastname: '',
-  //   email: '',
-  // });
+  
   const [userProfile, setUserProfile] = useState<UserProfile>({
     firstname: user?.firstName || '',
     lastname: user?.lastName || '',
@@ -185,8 +181,8 @@ const UserProfileForm: React.FC = () => {
         
       }
     }
-    const dispatch = useDispatch();
-  dispatch(reset());
+  //   const dispatch = useDispatch();
+  // dispatch(reset());
     
     console.log('Account deleted!');
     setUserProfile({

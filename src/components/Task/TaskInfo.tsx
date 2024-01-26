@@ -52,6 +52,30 @@ useEffect(() => {
     setSelectedPriority(taskDetails.priority);
   }
 }, [taskDetails]);
+const [fieldsUpdated, setFieldsUpdated] = useState(false);
+
+
+useEffect(() => {
+  if (fieldsUpdated) {
+    const updatedTaskDetails: Task = {
+      id:taskDetails?.id,
+      title: taskName || "",
+      description: description || "",
+      dueDate: dueDate || "",
+      dueTime: dueTime || "",
+      reminder: reminder || "",
+      priority: selectedPriority || "LOW",
+      completed: taskDetails?.completed || false,
+      archived: taskDetails?.archived || false,
+    };
+
+    updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+
+    onUpdateTaskDetails(updatedTaskDetails);
+    setFieldsUpdated(false);
+  }
+}, [fieldsUpdated, taskDetails]);
+
 
 
 const handleSave = async () => {
@@ -95,7 +119,7 @@ const updateTaskDueDate = async (newDueDate: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    // await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -123,7 +147,7 @@ const updateTaskDueTime = async (newDueTime: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    // await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -150,7 +174,7 @@ const updateTaskReminder = async (newReminder: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    // await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -177,7 +201,7 @@ const updateTaskPriority = async (newPriority: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
+    // await updateTaskByIdAPI(updatedTaskDetails.id, updatedTaskDetails);
     console.log(updatedTaskDetails)
 
 
@@ -191,18 +215,21 @@ const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newDueDate = e.target.value;
   setDueDate(newDueDate);
   updateTaskDueDate(newDueDate);
+  setFieldsUpdated(true);
 };
 
 const handleDueTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newDueTime = e.target.value;
   setDueTime(newDueTime);
   updateTaskDueTime(newDueTime);
+  setFieldsUpdated(true);
 };
 
 const handleReminderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newReminder = e.target.value;
   setReminder(newReminder);
   updateTaskReminder(newReminder);
+  setFieldsUpdated(true);
 };
 
 
@@ -215,6 +242,7 @@ const handlePriorityChange = (
   const newPriority = event.target.value;
   setSelectedPriority(newPriority);
   updateTaskPriority(newPriority);
+  setFieldsUpdated(true);
   console.log(newPriority)
 };
 
@@ -297,10 +325,9 @@ const handlePriorityChange = (
                   id="prioritySelect"
                   value={selectedPriority}
                   className={styles.select}
-                  // onChange={(e) => setSelectedPriority(e.target.value)}
                   onChange={handlePriorityChange}
                 >
-
+                  <option value="NONE">NONE</option>
                   <option value="LOW">LOW</option>
                   <option value="MEDIUM">MEDIUM</option>
                   <option value="HIGH">HIGH</option>
@@ -309,8 +336,6 @@ const handlePriorityChange = (
               <div className={styles.inputContainer}>
                 <label className={styles.label}>Reminder</label>
                 <input type="datetime-local" className={styles.select}
-                // onChange={(e) => setReminder(e.target.value)}
-                
                 value={reminder}
                 onChange={handleReminderChange}
                 />

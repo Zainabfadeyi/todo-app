@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import styles from "../../styles/TaskInfo.module.css";
 import { IoIosCheckmark } from "react-icons/io";
 import { Task } from "../../api/createTaskApi";
-import {useParams } from "react-router-dom";
 import { useApiService } from "../../api/apiService";
 
 interface FilterInfoProps {
@@ -39,8 +38,6 @@ const [reminder, setReminder] = useState<string>("");
   
   const today = new Date().toISOString().split("T")[0];
 
-  const { id,name:listName } = useParams<Params>();
-const parseListId = id ? parseInt(id, 10) : undefined;
 
 
 useEffect(() => {
@@ -53,6 +50,29 @@ useEffect(() => {
     setSelectedPriority(taskDetails.priority);
   }
 }, [taskDetails]);
+const [fieldsUpdated, setFieldsUpdated] = useState(false);
+
+
+useEffect(() => {
+  if (fieldsUpdated) {
+    const updatedTaskDetails: Task = {
+      id:taskDetails?.id,
+      title: taskName || "",
+      description: description || "",
+      dueDate: dueDate || "",
+      dueTime: dueTime || "",
+      reminder: reminder || "",
+      priority: selectedPriority || "LOW",
+      completed: taskDetails?.completed || false,
+      archived: taskDetails?.archived || false,
+    };
+
+    updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
+
+    onUpdateTaskDetails(updatedTaskDetails);
+    setFieldsUpdated(false);
+  }
+}, [fieldsUpdated, taskDetails]);
 
 
 const handleSave = async () => {
@@ -95,9 +115,6 @@ const updateTaskDueDate = async (newDueDate: string) => {
       completed: taskDetails.completed || false,
       archived: taskDetails.archived || false,
     };
-
-    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
-
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
     console.error("Error updating due date:", error);
@@ -124,8 +141,6 @@ const updateTaskDueTime = async (newDueTime: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
-
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
     console.error("Error updating due time:", error);
@@ -150,9 +165,6 @@ const updateTaskReminder = async (newReminder: string) => {
       completed: taskDetails.completed || false,
       archived: taskDetails.archived || false,
     };
-
-    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
-
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
     console.error("Error updating reminder:", error);
@@ -178,9 +190,6 @@ const updateTaskPriority = async (newPriority: string) => {
       archived: taskDetails.archived || false,
     };
 
-    await updateTaskAPI(updatedTaskDetails.id, updatedTaskDetails);
-    console.log(updatedTaskDetails)
-
 
     onUpdateTaskDetails(updatedTaskDetails);
   } catch (error) {
@@ -192,23 +201,22 @@ const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newDueDate = e.target.value;
   setDueDate(newDueDate);
   updateTaskDueDate(newDueDate);
+  setFieldsUpdated(true);
 };
 
 const handleDueTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newDueTime = e.target.value;
   setDueTime(newDueTime);
   updateTaskDueTime(newDueTime);
+  setFieldsUpdated(true);
 };
 
 const handleReminderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const newReminder = e.target.value;
   setReminder(newReminder);
   updateTaskReminder(newReminder);
+  setFieldsUpdated(true);
 };
-
-
-
-
 
 const handlePriorityChange = (
   event: React.ChangeEvent<HTMLSelectElement>
@@ -216,11 +224,10 @@ const handlePriorityChange = (
   const newPriority = event.target.value;
   setSelectedPriority(newPriority);
   updateTaskPriority(newPriority);
+  setFieldsUpdated(true);
   console.log(newPriority)
 };
 
-  
-  
   return (
     <>
       <div className={styles.modalWrapper}>
@@ -231,7 +238,7 @@ const handlePriorityChange = (
         <div className={styles.modal}>
           <div className={styles.heading}>
             <h4>
-              <span style={{ padding: "10px" }}>#</span>{listName}
+              <span style={{ padding: "10px" }}>#</span>{task?.todoList?.name ||"inbox" }
             </h4>
           </div>
 
@@ -298,10 +305,9 @@ const handlePriorityChange = (
                   id="prioritySelect"
                   value={selectedPriority}
                   className={styles.select}
-                  // onChange={(e) => setSelectedPriority(e.target.value)}
                   onChange={handlePriorityChange}
                 >
-
+                  <option value="NONE">NONE</option>
                   <option value="LOW">LOW</option>
                   <option value="MEDIUM">MEDIUM</option>
                   <option value="HIGH">HIGH</option>

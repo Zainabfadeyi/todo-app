@@ -33,7 +33,6 @@ const saveState = (state: AuthState) => {
     const serializedState = JSON.stringify(state);
     localStorage.setItem('authState', serializedState);
   } catch (err) {
-    // Handle errors while saving state
   }
 };
 
@@ -41,6 +40,9 @@ const initialState: AuthState = loadState() || {
   isAuthenticated: false,
   user: null,
   accessToken:null
+};
+export const inactivityLogout = () => (dispatch: any) => {
+  dispatch(logout());
 };
 
 const authSlice = createSlice({
@@ -57,7 +59,6 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       state.accessToken = null;
-      saveState(state);
     },
     reset: (state) => {
       state.isAuthenticated = false;

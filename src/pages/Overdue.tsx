@@ -20,7 +20,7 @@ const Overdue: React.FC = () => {
   const [showSort, setShowSort] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
-  const { archiveTaskAPI,deleteTaskByIdAPI , getTaskDetailsAPI,updateTaskByIdAPI} = useApiService();
+  const { archiveTaskAPI,deleteTaskByIdAPI , getTaskDetailsAPI,updateTaskByIdAPI, updateTaskCompletionByIdAPI} = useApiService();
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -100,6 +100,7 @@ useEffect(() => {
     const fetchOverdueTasks = async () => {
       try {
         const fetchedOverdueTasks = await filterOverdueTasksAPI();
+        setOverdueTasks(fetchedOverdueTasks)
         setLoading(false);
       } catch (error) {
         console.error('Error fetching overdue tasks:', error);
@@ -197,6 +198,11 @@ useEffect(() => {
         )
       );
       setUpdatedTaskDetails(undefined);
+      const fetchedOverdueTasks = await filterOverdueTasksAPI();
+        setOverdueTasks(fetchedOverdueTasks)
+        const sortedTasks = await sortFilterOverdueService(accessToken,sort,userId);    
+      setOverdueTasks(sortedTasks);
+
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -208,6 +214,50 @@ useEffect(() => {
   const onUpdateTaskDetails = (updatedDetails: Task | undefined) => {
     setUpdatedTaskDetails(updatedDetails);
   }
+  
+  const formatDueDate = (dueDate: string) => {
+    const options = {
+      weekday: 'short' as const,
+      month: 'short' as const,
+      day: 'numeric' as const,
+    };
+  
+    const formattedDate = new Date(dueDate).toLocaleDateString('en-US', options);
+    return formattedDate.toLowerCase();
+  };
+  const handleTaskCompletionToggle = async (index: number) => {
+    try {
+      const taskToUpdate = overdueTasks[index];
+      if (!taskToUpdate || taskToUpdate.id === undefined) {
+        console.error('Task or task id is undefined');
+        return;
+      }
+  
+      const updatedTasks = overdueTasks.map((task, i) => {
+        if (i === index) {
+          task.completed = !task.completed;
+        }
+        return task;
+      });
+  
+      setOverdueTasks(updatedTasks);
+  
+      if (!accessToken) {
+        console.error('Access token is undefined');
+        return;
+      }
+      const apiResponse = await updateTaskCompletionByIdAPI( taskToUpdate.id, taskToUpdate.completed, accessToken);
+  
+        if (accessToken) {
+          const fetchedTasks = await filterOverdueTasksAPI();
+          setOverdueTasks(fetchedTasks);
+        }
+  
+      } catch (error) {
+        console.error('Error updating task completion:', error);
+      }
+    }
+    
 
 
   return (
@@ -217,7 +267,7 @@ useEffect(() => {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3 style={{color:"red"}}>Overdue</h3>
+            <h2 style={{color:"red"}}>Overdue</h2>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -273,7 +323,7 @@ useEffect(() => {
             </div>
           </header>
         </div>
-        <hr />
+      
         {overdueTasks.length > 0 ? (
           <div className={styles.text}>
             <div style={{ textAlign: "left" }} className={styles.taskText}>
@@ -281,11 +331,11 @@ useEffect(() => {
               <>
               <div key={task.id} className={styles.properties}>
                 <button
-                  onClick={() => setChecked(!checked)}
+                  onClick={() =>handleTaskCompletionToggle(index)}
                   className={styles.propertiesButton}
-                  style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange": task.priority=== "HIGH" ? "red": "none" }}
+                  style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange": task.priority=== "HIGH" ? "red": task.priority === "NONE" ?"#BEBEBE": "none" }}
                 >
-                  {checked && <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority=== "HIGH" ? "red" : "none"} />}
+                  {checked && <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority=== "HIGH" ? "red" : task.priority === "NONE" ?"#BEBEBE": "none"} />}
                 </button>
                 <div className={styles.Content}>
                   <div
@@ -294,14 +344,17 @@ useEffect(() => {
                   >
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
-                    <p>{task.dueDate}</p>
+                    <div className={styles.maintain}>
+                    <p style={{color:"red"}}>{formatDueDate(task.dueDate)}</p>
+                    <span style={{color:"#B7B7B7"}}>#{task.todoList?.name || "inbox"}</span>
+                    </div>
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
                   <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)} onTaskEdit={()=> handleEditTask(task.id)}/>
                 </div>
               </div>
-
+              <div className={styles.border}></div>
               {showModal && (
                     <FilterInfo
                       setShowModal={setShowModal}

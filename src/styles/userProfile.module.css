@@ -1,14 +1,11 @@
 /* userProfile.module.css */
 
 .userprofile {
-    /* max-width: 400px; */
     width: 100%;
     height: auto;
     margin: auto;
     padding: 20px;
-    /* border: 1px solid #ddd; */
     border-radius: 5px;
-    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
     display: block;
   
     
@@ -26,7 +23,7 @@
     margin-bottom: 10px;
     box-sizing: border-box;
     border-radius: 10px;
-    border: 1px solid #ddd;
+    border: none
   }
   
   .button {

@@ -28,7 +28,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({ tasks, dueDate, onTas
                 
                 <button
                     className={styles.propertiesButton}
-                    style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none" }}
+                    style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": task.priority === "NONE" ?"#BEBEBE": "none" }}
                   >
                 </button>
                 <div className={`${styles.Content} ${task.completed ? styles.completedTask : ''}`}></div>
@@ -36,7 +36,9 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({ tasks, dueDate, onTas
                   
                     <h3 style={{fontSize:"14px"}}>{task.title}</h3>
                     <p  style={{fontSize:"12px"}}>{task.description}</p>
-                    <p  style={{fontSize:"12px"}}>{task.dueDate}</p>
+                    <span style={{display:"flex", alignItems:"center", color:"#B7B7B7"}}># {""}
+                    <p  style={{fontSize:"12px"}}>  {task.todoList?.name || "inbox"}</p>
+                    </span>
                 </div>
                 
                 </div>

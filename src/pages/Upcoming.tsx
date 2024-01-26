@@ -110,7 +110,9 @@ const UpcomingPage: React.FC = () => {
   
       await updateTaskByIdAPI( updatedTaskDetails.id, updatedTaskCopy);
       setUpdatedTaskDetails(undefined);
-  
+
+      const tasks = await filterUpcomingTasksAPI();
+        setUpcomingTasks(tasks);
     } catch (error) {
       console.error("Error updating task:", error);
     }

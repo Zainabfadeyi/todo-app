@@ -18,7 +18,7 @@ import {  useApiService } from '.././api/apiService';
 import DeleteTaskPopup from "../components/Task/DeleteTaskPopup";
 import { SearchBar } from "../components/search/SearchBar";
 import { SearchResultItem, SearchResultsList } from "../components/search/SearchResultList";
-
+import axios from "../api/axios"
 interface Params {
   id?: string;
   [key: string]: string | undefined;
@@ -35,7 +35,7 @@ interface NewList {
 type SortType = "id"| "dueDate" | "priority" | "title";
 
 function ListDetailPage() {
-  const { getSortedTasksAPI, updateTaskCompletionAPI, deleteListAPI,deleteAllTaskAPI,deleteTaskAPI,updateListAPI, getTaskDetailsAPI, updateTaskAPI, archiveTaskAPI } = useApiService();
+  const { getSortedTasksAPI, updateTaskCompletionAPI, deleteListAPI,deleteAllTaskAPI,deleteTaskAPI, getTaskDetailsAPI, updateTaskAPI, archiveTaskAPI } = useApiService();
   const { name } = useParams<{ name: string }>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
@@ -56,6 +56,7 @@ function ListDetailPage() {
   const [hoverSort, setHoverSort] = useState(false);
   const [hoverMore, setHoverMore] = useState(false);
   const [lists, setLists] = useState<NewList[]>([]);
+  const [loading, setLoading] = useState(true);
   const openPopup = () => {
     setIsPopupOpen(true);
     setShowButtons(false);
@@ -120,6 +121,7 @@ const fetchAllTasks = async () => {
     if (parseListId) {
       const fetchedTasks = await fetchTasksApi(userId,parseListId,accessToken);
       setTasks(fetchedTasks);
+      setLoading(false)
     }
   } catch (error) {
     console.error('Error fetching tasks:', error);
@@ -139,6 +141,7 @@ const fetchAllTasks = async () => {
     }
 
   };
+  
 
 
   const handleSortChange = (selectedSort: SortType) => {
@@ -196,12 +199,9 @@ useEffect(() => {
   const closeMoreOptions = () => {
     setShowMoreOptions(false);
   };
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  
 
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-
-  const [selectedListForDeletion, setSelectedListForDeletion] = useState<NewList | null>(null);
+  
   const handleEditList = () => {
     setIsPopupOpen(true);
     closeMoreOptions();
@@ -256,13 +256,11 @@ useEffect(() => {
   };
   const [selectedList, setSelectedList] = useState<NewList | null>(null);
   
-  
   const handleEditListPopup = () => {
     setIsEditPopupOpen(true);
-    const selectedList = lists.find((list) => list.id === parseListId) || null;
-    setSelectedList(selectedList);
-    closeMoreOptions(); 
+    setSelectedList({ id: parseListId || 0, name: name || "" });
   };
+
   
   const handleTaskDeleteClick = (task: Task) => {
     setIsDeleteTaskPopupOpen(true);
@@ -481,9 +479,61 @@ const handleArchivedTask = async (task:Task) => {
     if (updatedTaskDetails) {
       updateTask();
     }
+    const updateListAPI = async (parseListId:number , name:string) => {
+      try {
+        if (!userId || !parseListId) {
+          console.error("User ID or List ID is undefined");
+          return;
+        }
+    
+        const apiUrl = `/api/v1/list/${userId}/${parseListId}`;
+        const response = await axios.put(
+          apiUrl,
+          { id: parseListId , name: name},
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+    
+        console.log("API Response:", response);
+    
+        const updatedListsResponse = await axios.get(`/api/v1/list/all/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+    
+        const updatedLists = updatedListsResponse.data;
+        setSelectedList(updatedLists);
+      
+      } catch (error) {
+        console.error("Error updating list:", error);
+      }
+    };
   
+    const userId = useSelector((state: RootState) => state.auth.user?.id);
 
- 
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+
+  const [selectedListForDeletion, setSelectedListForDeletion] = useState<NewList | null>(null);
+
+  if (loading) {
+    return <p>Loading...</p>; 
+  }
+
+  
+  const formatDueDate = (dueDate: string) => {
+    const options = {
+      weekday: 'short' as const,
+      month: 'short' as const,
+      day: 'numeric' as const,
+    };
+  
+    const formattedDate = new Date(dueDate).toLocaleDateString('en-US', options);
+    return formattedDate.toLowerCase();
+  };
   return (
     <>
       <div className={styles.taskContainer}>
@@ -609,8 +659,8 @@ const handleArchivedTask = async (task:Task) => {
               </div>
             </div>
           </header> 
-
-          <hr style={{ width: "100%" }} />
+{/* 
+          <hr style={{ width: "100%" }} /> */}
           <div style={{ textAlign: "left" }} className={styles.taskname}>
             {Array.isArray(tasks) && tasks.length > 0 ? (
                   tasks.map((task, index) => (
@@ -633,9 +683,11 @@ const handleArchivedTask = async (task:Task) => {
                         >
                           <h3>{task.title}</h3>
                           <p>{task.description}</p>
-                          <p>{task.dueDate}</p>
+                          <p>{formatDueDate (task.dueDate)}</p>
                           
                         </div>
+
+
                       </div>
                       </div>
                       <div className={styles.HoverMore}>
@@ -643,6 +695,7 @@ const handleArchivedTask = async (task:Task) => {
                       </div>
                       </div>
                     </div>
+                    <div className={styles.border}></div>
                       {showModal && (
                           <TaskInfo
                             setShowModal={setShowModal}

@@ -18,7 +18,6 @@ const Inbox: React.FC = () =>  {
   const { getTaskDetailsAPI,updateTaskCompletionByIdAPI, updateTaskByIdAPI, archiveTaskAPI, deleteTaskByIdAPI } = useApiService();
   const [showSort, setShowSort] = useState(false);
   const [sort, setSort] = useState<SortType>("id");
-  const [contentAdded, setContentAdded] = useState(false);
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -30,9 +29,8 @@ const Inbox: React.FC = () =>  {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [hover, setHover] = useState(false);
   const [hoverSort, setHoverSort] = useState(false);
-  const [hoverMore, setHoverMore] = useState(false);
   const [isDeleteTaskPopupOpen, setIsDeleteTaskPopupOpen] = useState(false);
-
+  const [loading, setLoading] = useState(true);
 
   const openPopup = () => {
     setIsPopupOpen(true);
@@ -100,12 +98,14 @@ const Inbox: React.FC = () =>  {
       if (accessToken) {
         const fetchedTasks = await fetchAllTasksApi(accessToken, userId);
         setTasks(fetchedTasks);
+        setLoading(false)
       }
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
   };
-  
+
+
   const fetchSortTasks = async () => {
     console.log(sort);
     try {
@@ -178,10 +178,6 @@ const Inbox: React.FC = () =>  {
     const closeMoreOptions = () => {
       setShowMoreOptions(false);
     };
-    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-    const userId = useSelector((state: RootState) => state.auth.user?.id);
-  
-    const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   
   
   const handleArchivedTask = async (task:Task) => {
@@ -262,44 +258,6 @@ const Inbox: React.FC = () =>  {
         console.error('Error updating task completion:', error);
       }
     }
-  
-    const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false);
-  
-    const openSearchPopup = () => {
-      setIsSearchPopupOpen(true);
-    };
-  
-    const closeSearchPopup = () => {
-      setIsSearchPopupOpen(false);
-    };
-    const searchPopupRef = useRef(null);
-  
-    const handleClickOutside = (event:MouseEvent) => {
-      if (searchPopupRef.current && !((searchPopupRef.current as HTMLDivElement).contains(event.target as Node))) {
-        closeSearchPopup();
-      }
-    };
-  
-    useEffect(() => {
-    
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
-      
-      const handleResultClick = async (taskId: number | undefined): Promise<void> => {
-       
-        try {
-          const response = await getTaskDetailsAPI(taskId);
-          setSelectedTaskDetails(response);
-          setShowModal(true);
-        } catch (error) {
-          console.error("Error handling result click:", error);
-        }
-      };
-     
-   
       const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>(
         
       );
@@ -361,13 +319,16 @@ const Inbox: React.FC = () =>  {
       
           await updateTaskByIdAPI( updatedTaskDetails.id, updatedTaskCopy);
           
-          setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task.id === updatedTaskDetails.id ? updatedTaskCopy : task
-          )
-        );
+        //   setTasks((prevTasks) =>
+        //   prevTasks.map((task) =>
+        //     task.id === updatedTaskDetails.id ? updatedTaskCopy : task
+        //   )
+        // );
             setUpdatedTaskDetails(undefined);
-          
+            const fetchedTasks = await fetchAllTasksApi(accessToken, userId);
+        setTasks(fetchedTasks);
+        const sortedTasks = await sortNonlistId(accessToken,sort,userId);
+        setTasks(sortedTasks);
         } catch (error) {
           console.error("Error updating task:", error);
         }
@@ -376,7 +337,26 @@ const Inbox: React.FC = () =>  {
       if (updatedTaskDetails) {
         updateTask();
       }
+      const userId = useSelector((state: RootState) => state.auth.user?.id);
 
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+
+
+  if (loading) {
+    return <p>Loading...</p>; 
+  }
+
+  const formatDueDate = (dueDate: string) => {
+    const options = {
+      weekday: 'short' as const,
+      month: 'short' as const,
+      day: 'numeric' as const,
+    };
+  
+    const formattedDate = new Date(dueDate).toLocaleDateString('en-US', options);
+    return formattedDate.toLowerCase();
+  };
+  
   return (
     <>
     <div  className={styles.container}>
@@ -384,7 +364,7 @@ const Inbox: React.FC = () =>  {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3>Inbox</h3>
+            <h2>Inbox</h2>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -440,7 +420,7 @@ const Inbox: React.FC = () =>  {
             </div>
           </header>
         </div>
-        <hr />
+    
         <div style={{ textAlign: "left" }} className={listD.taskname}>
             {Array.isArray(tasks) && tasks.length > 0 ? (
                   tasks.map((task, index) => (
@@ -451,9 +431,9 @@ const Inbox: React.FC = () =>  {
                       <button
                           onClick={() => handleTaskCompletionToggle(index)}
                           className={listD.propertiesButton}
-                          style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none" }}
+                          style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": task.priority === "NONE" ?"#BEBEBE": "none" }}
                         >
-                          {task.completed&& <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": "none"} />}
+                          {task.completed&& <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority === "HIGH" ?"red": task.priority === "NONE" ?"#BEBEBE": "none"} />}
                       </button>
                       <div className={`${listD.Content} ${task.completed ? listD.completedTask : ''}`}>
                       <div className={listD.Content}>
@@ -463,7 +443,7 @@ const Inbox: React.FC = () =>  {
                         >
                           <h3>{task.title}</h3>
                           <p>{task.description}</p>
-                          <p>{task.dueDate}</p>
+                          <p>{formatDueDate(task.dueDate)}</p>
                           
                         </div>
                       </div>
@@ -473,6 +453,7 @@ const Inbox: React.FC = () =>  {
                       </div>
                       </div>
                     </div>
+                    <div className={styles.border}></div>
                       {showModal && (
                           <InboxInfo
                             setShowModal={setShowModal}

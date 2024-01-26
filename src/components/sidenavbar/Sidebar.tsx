@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { SidebarData, SidebarDataButton, SidebarDataList } from "./SidebarData";
+import { SidebarData, setSidebarData, SidebarDataList } from "./SidebarData";
 import "../../styles/sidebarStyle.css";
 import { FaBars } from "react-icons/fa";
 import { Popup } from "../Todolist/Popup";
@@ -10,13 +10,21 @@ import { RootState } from "../../app/store";
 import { IoIosLogOut } from "react-icons/io";
 import { logout } from '../../app/slices/authSlice';
 import { clearUser } from '../../app/slices/user.slice';
+import useFetchTaskCount from "../../api/fetchCountTask";
+
 
 
 interface NewList {
   id: number;
   name: string;
 }
-
+interface SidebarCounts {
+  inbox: number;
+  overdue: number;
+  today: number;
+  upcoming: number;
+  archived: number;
+}
 const Sidebar: React.FC= () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isActive, setIsActive] = useState(false);
@@ -24,7 +32,6 @@ const Sidebar: React.FC= () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [listName, setListName] = useState("");
   const [lists, setLists] = useState<NewList[]>([]);
 
   const toggle = () => setIsOpen(!isOpen);
@@ -39,12 +46,6 @@ const Sidebar: React.FC= () => {
     setIsPopupOpen(false);
   };
 
-  // const handleSubmit = (newList: NewList) => {
-  //   onAddList(newList);
-
-  //   closePopup();
-  //   navigate(`/list/${newList.id}/${encodeURIComponent(newList.name)}`);
-  // };
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   const firstName = useSelector((state: RootState) => state.auth.user?.firstName);
@@ -123,6 +124,7 @@ const Sidebar: React.FC= () => {
 
   const handleLinkClick = () => {
     setIsActive(!isActive);
+    
   };
 
   useEffect(() => {
@@ -145,6 +147,65 @@ const Sidebar: React.FC= () => {
 
     navigate("/login")
   };
+  const [taskCounts, setTaskCounts] = useState<SidebarCounts>({
+    inbox: 0,
+    overdue: 0,
+    today: 0,
+    upcoming: 0,
+    archived: 0,
+  });
+
+  const {
+    fetchInboxCount,
+    fetchOverdueCount,
+    fetchTodayCount,
+    fetchUpcomingCount,
+    fetchArchivedCount,
+  } = useFetchTaskCount();
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const inboxCount = await fetchInboxCount();
+        const overdueCount = await fetchOverdueCount();
+        const todayCount = await fetchTodayCount();
+        const upcomingCount = await fetchUpcomingCount();
+        const archivedCount = await fetchArchivedCount();
+
+  
+        const updatedSidebarData = SidebarData.map((item) => {
+          switch (item.title) {
+            case "Inbox":
+              return { ...item, count: inboxCount };
+            case "Overdue":
+              return { ...item, count: overdueCount };
+            case "Today":
+              return { ...item, count: todayCount };
+            case "Upcoming":
+              return { ...item, count: upcomingCount };
+            case "Archived":
+              return { ...item, count: archivedCount };
+            default:
+              return item;
+          }
+        });
+        setTaskCounts({
+          inbox: inboxCount,
+          overdue: overdueCount,
+          today: todayCount,
+          upcoming: upcomingCount,
+          archived: archivedCount,
+        });
+        setSidebarData(updatedSidebarData);
+      } catch (error) {
+        console.error("Error fetching task counts:", error);
+      }
+    };
+  
+    fetchCounts();
+  // }, [fetchArchivedCount, fetchInboxCount, fetchOverdueCount,fetchTodayCount,fetchUpcomingCount]);
+  },[]);
+  
+  
   return (
     <>
       <div className={`nav ${isOpen ? "" : "sidebar-closed"}`}>
@@ -165,29 +226,40 @@ const Sidebar: React.FC= () => {
             </div>
           </div>
           {SidebarData.map((item, index) => (
-            <NavLink
-              to={item.path}
-              key={index}
-              className={location.pathname === item.path ? "link active" : "link"}
-              onClick={handleLinkClick}
-            >
-              <div className="icon">{item.icon}</div>
-              <div
-                style={{ display: isOpen ? "flex" : "none" }}
-                className="link_text "
+              <NavLink
+                to={item.path}
+                key={index}
+                className={location.pathname === item.path ? "link active" : "link"}
+                onClick={handleLinkClick}
               >
-                {item.title}
-              </div>
-            </NavLink>
-          ))}
+                <div className="coverC" style={{ display: isOpen ? "flex" : "50%", columnGap:"10px"}}>
+                  <div className="icon">{item.icon}</div>
+                  <div
+                    style={{ display: isOpen ? "flex" : "none" }}
+                    className="link_text"
+                  >
+                    {item.title}
+                  </div>
+                
+                  <span className="link_count" style={{ display: isOpen && item.count !== undefined ? "flex" : "none" }}>
+                    {item.count !== undefined ? item.count : ''}
+                    
+                  </span>
+                  
+                </div>
+                
+                
+              </NavLink>
+            ))}
+
 
           {SidebarDataList.map((item, index) => (
-            <div>
+            <div className="listholder">
               <NavLink to={item.path} key={index} className="list-link">
                 <div
                   style={{
                     display: isOpen ? "flex" : "none",
-                    marginTop: "20px",
+                  
                   }}
                   className={location.pathname === item.path ? "link_list-text active" : "link_list-text"}
                 >

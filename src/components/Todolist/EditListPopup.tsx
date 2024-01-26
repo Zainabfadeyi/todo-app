@@ -68,8 +68,10 @@ import React, {
          onClose={onClose}
          aria-labelledby="dialog-title"
          aria-describedby="dialog-description"
+         
        >
-         <DialogTitle id="dialog-title">Edit List</DialogTitle>
+         <DialogTitle id="dialog-title"
+         style={{ fontSize: "16px", fontWeight:"700"}}>Edit List</DialogTitle>
          <form onSubmit={handleSubmit}>
            <input
              placeholder="Edit List"
@@ -81,16 +83,18 @@ import React, {
                margin: "0 20px",
                outline: "none",
                border: "1px solid #555",
-               fontSize: "16px",
+               borderRadius:"10px",
+               fontSize: "14px",
                padding: "8px 15px",
              }}
+          
              ref={inputRef}
              required
              
            />
            <DialogContentText
              id="dialog-description"
-             width={"500px"}
+             width={"400px"}
            ></DialogContentText>
            <DialogActions>
              <Button
@@ -100,11 +104,11 @@ import React, {
                }}
                type="button"
                style={{
-                 backgroundColor: "grey",
-                 fontSize: "10px",
-                 color: "black",
-                 boxSizing: "border-box",
-               }}
+                backgroundColor: "#f5f5f5",
+                fontSize: "10px",
+                color: "black",
+                boxSizing: "border-box",
+              }}
              >
                Cancel
              </Button>
@@ -112,11 +116,12 @@ import React, {
                autoFocus
                type="submit"
                style={{
-                 backgroundColor: "red",
-                 fontSize: "12px",
-                 color: "white",
-                 boxSizing: "border-box",
-               }}
+                backgroundColor: "#DC4C3E",
+                fontSize: "10px",
+                color: "white",
+                boxSizing: "border-box",
+               
+              }}
                
              >
                Save

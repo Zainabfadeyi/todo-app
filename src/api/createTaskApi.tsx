@@ -1,19 +1,24 @@
 import axios from '../api/axios';
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { useSelector } from 'react-redux';
-import { RootState } from '../app/store';
+
+
+export interface TodoList {
+  id: number;
+  name: string;
+}
 
 export interface Task {
-  id?:number
+  id?: number;
   title: string;
   description: string;
   priority: string;
   dueDate: string;
   dueTime: string;
   reminder: string;
-  completed:boolean;
-  archived?:boolean
+  completed: boolean;
+  archived?: boolean;
+  todoList?: TodoList;
 }
 
 

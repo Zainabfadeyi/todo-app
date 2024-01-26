@@ -24,17 +24,12 @@ const Today: React.FC = () => {
   const [isDeleteTaskPopupOpen, setIsDeleteTaskPopupOpen] = useState(false);
   const [todayTasks, setTodayTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true);
-  const { archiveTaskAPI,deleteTaskByIdAPI,getTaskDetailsAPI,updateTaskByIdAPI } = useApiService();
+  const { archiveTaskAPI,deleteTaskByIdAPI,getTaskDetailsAPI,updateTaskByIdAPI ,updateTaskCompletionByIdAPI} = useApiService();
   const [selectedTaskDetails, setSelectedTaskDetails] = useState<Task | undefined>();
   const [updatedTaskDetails, setUpdatedTaskDetails] = useState<Task | undefined>(undefined);
   const closeDeleteTaskPopup=()=>{
     setIsDeleteTaskPopupOpen(false)
   }
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-  const userId = useSelector((state: RootState) => state.auth.user?.id);
-
- 
-
   
     const fetchSortTasks = async () => {
       console.log(sort);
@@ -136,9 +131,7 @@ const Today: React.FC = () => {
     fetchTodayTasks();
   }, []);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+ 
   
 
   const handleArchivedTask = async (task:Task) => {
@@ -227,6 +220,10 @@ const Today: React.FC = () => {
       )
     );
     setUpdatedTaskDetails(undefined);
+    const fetchedTasks = await filterTodayTasksAPI();
+        setTodayTasks(fetchedTasks)
+        const sortedTasks = await sortFilterTaskService(accessToken,sort, userId);
+        setTodayTasks(sortedTasks);
   } catch (error) {
     console.error("Error updating task:", error);
   }
@@ -236,7 +233,59 @@ if (updatedTaskDetails) {
   updateTask();
 }
 
+const userId = useSelector((state: RootState) => state.auth.user?.id);
 
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+
+
+
+  if (loading) {
+    return <p>Loading...</p>; 
+  }
+  const formatDueDate = (dueDate: string) => {
+    const options = {
+      weekday: 'short' as const,
+      month: 'short' as const,
+      day: 'numeric' as const,
+    };
+  
+    const formattedDate = new Date(dueDate).toLocaleDateString('en-US', options);
+    return formattedDate.toLowerCase();
+  };
+  const handleTaskCompletionToggle = async (index: number) => {
+    try {
+      const taskToUpdate = todayTasks[index];
+      if (!taskToUpdate || taskToUpdate.id === undefined) {
+        console.error('Task or task id is undefined');
+        return;
+      }
+  
+      const updatedTasks = todayTasks.map((task, i) => {
+        if (i === index) {
+          task.completed = !task.completed;
+        }
+        return task;
+      });
+  
+      setTodayTasks(updatedTasks);
+  
+      if (!accessToken) {
+        console.error('Access token is undefined');
+        return;
+      }
+      const apiResponse = await updateTaskCompletionByIdAPI( taskToUpdate.id, taskToUpdate.completed, accessToken);
+  
+        if (accessToken) {
+          const fetchedTasks = await filterTodayTasksAPI();
+          setTodayTasks(fetchedTasks);
+        }
+  
+      } catch (error) {
+        console.error('Error updating task completion:', error);
+      }
+    }
+    
+  
 
   return (
     <>
@@ -245,7 +294,7 @@ if (updatedTaskDetails) {
         <div className={styles.mainHeader}> 
         <header>
             <div className={styles.taskName}>
-            <h3>Today</h3>
+            <h2>Today</h2>
             <div className={styles.taskIcons}>
             <div className={styles.taskIconWrapper} ref={sortDropdownRef}>
                   <button
@@ -295,7 +344,7 @@ if (updatedTaskDetails) {
             </div>
           </header>
         </div>
-        <hr />
+    
         {todayTasks.length > 0 ? (
           <div className={styles.text}>
             <div style={{ textAlign: "left" }} className={styles.taskText}>
@@ -303,11 +352,11 @@ if (updatedTaskDetails) {
               <>
               <div key={index} className={styles.properties}>
                 <button
-                  onClick={() => setChecked(!checked)}
+                  onClick={() =>handleTaskCompletionToggle(index)}
                   className={styles.propertiesButton}
-                  style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange": task.priority=== "HIGH" ? "red": "none" }}
+                  style={{ borderColor: task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange": task.priority=== "HIGH" ? "red": task.priority === "NONE" ?"#BEBEBE": "none" }}
                 >
-                  {checked && <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority=== "HIGH" ? "red" : "none"} />}
+                  {checked && <IoIosCheckmark color={task.priority === "LOW" ? "green" : task.priority === "MEDIUM" ? "orange" : task.priority=== "HIGH" ? "red" : task.priority === "NONE" ?"#BEBEBE": "none"} />}
                 </button>
                 <div className={styles.Content}>
                   <div
@@ -316,14 +365,17 @@ if (updatedTaskDetails) {
                   >
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
-                    <p>{task.dueDate}</p>
+                    <div className={styles.maintain}>
+                    <p style={{color:"green"}}>{formatDueDate(task.dueDate)}</p>
+                    <span style={{color:"#B7B7B7"}}>#{task.todoList?.name || "inbox"}</span>
+                    </div>
                   </div>
                 </div>
                 <div className={styles.HoverMore}>
                   <FilterOnHover  onTaskDelete={() => handleTaskDeleteClick(task)} onTaskArchived={() => handleArchivedTask(task)} onTaskEdit={()=> handleEditTask(task.id)}/>
                 </div>
               </div>
-
+              <div className={styles.border}></div>
               {showModal && (
                     <FilterInfo
                       setShowModal={setShowModal}
@@ -370,4 +422,4 @@ if (updatedTaskDetails) {
   );
 }
 
-export default Today
+export default Today;
