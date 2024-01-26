@@ -147,8 +147,8 @@ useEffect(() => {
             <p className="suggest">
               Need an Account?
               <span className="line">
-                <a href="./register">Sign Up</a>
-              </span>
+                  <Link to="/register">Sign up</Link>
+                </span>
                
             </p>
             
