@@ -5,7 +5,7 @@ import { RootState } from '../app/store';
 import { useNavigate } from 'react-router-dom';
 
 const startLogoutTimer = (logoutAction: () => void): (() => void) => {
-  const inactivityTimeout = 30*60 * 1000;
+  const inactivityTimeout = 5*60 * 1000;
   console.log('Inactivity Timeout set for:', inactivityTimeout / 1000, 'seconds');
   
   let timeoutId: ReturnType<typeof setTimeout>;
